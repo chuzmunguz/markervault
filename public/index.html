@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MarkerVault</title>
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#274b73">
+  <link rel="stylesheet" href="assets/leaflet.css" />
+  <link rel="stylesheet" href="assets/Leaflet.PolylineMeasure.css" />
+  <link rel="stylesheet" href="assets/leaflet-routing-machine.css" />
+  <link rel="stylesheet" href="assets/swiper-bundle.min.css" />
+  <link rel="stylesheet" href="assets/glightbox.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- Add Map Overlay -->
+<div id="addMapOverlay" class="overlay">
+  <div class="overlay-content">
+    <button type="button" class="overlay-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18"/></svg>
+    </button>
+    <h3>Add Map</h3>
+    <form id="addMapForm">
+      <input type="text" id="addMapName" placeholder="Name" autocomplete="off">
+      <input type="datetime-local" id="addMapCreated" placeholder="Creation Date">
+      <textarea id="addMapDescription" placeholder="Description" autocomplete="off"></textarea>
+      <textarea id="addMapNotes" placeholder="Notes" autocomplete="off"></textarea>
+      <div class="buttons-container">
+        <button type="submit">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Map Overlay -->
+<div id="editMapOverlay" class="overlay">
+  <div class="overlay-content">
+    <button type="button" class="overlay-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18"/></svg>
+    </button>
+    <h3>Edit Map</h3>
+    <form id="editMapForm">
+      <input type="text" id="editMapName" placeholder="Name" autocomplete="off">
+      <input type="datetime-local" id="editMapCreated" placeholder="Creation Date">
+      <textarea id="editMapDescription" placeholder="Description" autocomplete="off"></textarea>
+      <textarea id="editMapNotes" placeholder="Notes" autocomplete="off"></textarea>
+      <div class="buttons-container">
+        <button type="submit">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Map Details Overlay -->
+<div id="mapDetailsOverlay" class="overlay">
+  <div class="overlay-content">
+    <button type="button" class="overlay-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18"/></svg>
+    </button>
+    <div id="mapDetailsContent">
+
+      <div class="map-details-header" style="text-align:center;">
+        <div class="map-details-title"></div>
+        <div class="map-details-date"></div>
+      </div>
+
+      <div id="mapDetailsDescriptionCard" class="map-details-card"></div>
+      <div id="mapDetailsNotesCard" class="map-details-card"></div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Add Marker Overlay -->
+<div id="addMarkerOverlay" class="overlay">
+  <div class="overlay-content">
+    <button type="button" class="overlay-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18"/></svg>
+    </button>
+    <h3>Add Marker</h3>
+    <form id="addMarkerForm">
+      <input type="text" id="addMarkerName" placeholder="Name" autocomplete="off" data-tip="Marker name">
+      <div id="addMarkerListingSelectWrapper" data-tip="Marker listing (default: General)">
+        <div id="addMarkerListingCustom" class="custom-select">
+          <div class="selected"></div>
+          <ul class="options"></ul>
+          <div id="addMarkerCreateListingBtn" class="create-listing-btn" data-tip="Create new listing">
+            <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M23 10h-9V1h-4v9H1v4h9v9h4v-9h9z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div id="addMarkerListingInputWrapper">
+        <input type="text" id="addMarkerListingInput" placeholder="Type the new listing name..." />
+        <button id="addMarkerSaveListingBtn" class="save-button" data-tip="Save">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/>
+            <polyline points="7 3 7 8 15 8"/>
+          </svg>
+        </button>
+        <div id="addMarkerCancelListingBtn" class="cancel-button" data-tip="Cancel">
+          <svg width="14" height="14" viewBox="0 0 0.32 0.32">
+            <path fill-rule="evenodd" d="M.16.32a.16.16 0 1 0 0-.32.16.16 0 0 0 0 .32M.086.086a.02.02 0 0 1 .028 0L.16.132.206.086a.02.02 0 1 1 .028.028L.188.16l.046.046a.02.02 0 0 1-.028.028L.16.188.114.234A.02.02 0 0 1 .086.206L.132.16.086.114a.02.02 0 0 1 0-.028"/>
+          </svg>
+        </div>
+      </div>
+      <div id="addMarkerSubsetSelectWrapper" data-tip="Marker subset (default: Main)">
+        <div id="addMarkerSubsetCustom" class="custom-select">
+          <div class="selected"></div>
+          <ul class="options"></ul>
+          <div id="addMarkerCreateSubsetBtn" class="create-subset-btn" data-tip="Create new subset">
+            <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M23 10h-9V1h-4v9H1v4h9v9h4v-9h9z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div id="addMarkerSubsetInputWrapper">
+        <input type="text" id="addMarkerSubsetInput" placeholder="Type the new subset name..." />
+        <button id="addMarkerSaveSubsetBtn" class="save-button" data-tip="Save">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/>
+            <polyline points="7 3 7 8 15 8"/>
+          </svg>
+        </button>
+        <div id="addMarkerCancelSubsetBtn" class="cancel-button" data-tip="Cancel">
+          <svg width="14" height="14" viewBox="0 0 0.32 0.32">
+            <path fill-rule="evenodd" d="M.16.32a.16.16 0 1 0 0-.32.16.16 0 0 0 0 .32M.086.086a.02.02 0 0 1 .028 0L.16.132.206.086a.02.02 0 1 1 .028.028L.188.16l.046.046a.02.02 0 0 1-.028.028L.16.188.114.234A.02.02 0 0 1 .086.206L.132.16.086.114a.02.02 0 0 1 0-.028"/>
+          </svg>
+        </div>
+      </div>
+      <input type="datetime-local" id="addMarkerCreated" placeholder="Creation date" data-tip="Creation date">
+      <textarea id="addMarkerNotes" placeholder="Notes" autocomplete="off"></textarea>
+      <div class="coords-container">
+        <input type="text" id="addMarkerLat" placeholder="Latitude" autocomplete="off" data-tip="Latitude">
+        <input type="text" id="addMarkerLng" placeholder="Longitude" autocomplete="off" data-tip="Longitude">
+      </div>
+      <div id="addMarkerPhotoCount" class="photo-count">No photos selected</div>
+      <div class="buttons-container">
+        <label for="addMarkerPhotos" class="upload-btn">
+          Select Photos
+          <input type="file" id="addMarkerPhotos" accept=".jpg,.jpeg,.png,.gif" multiple hidden>
+        </label>
+        <button type="submit">Add</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Marker Overlay -->
+<div id="editMarkerOverlay" class="overlay">
+  <div class="overlay-content">
+    <button type="button" class="overlay-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18"/></svg>
+    </button>
+    <h3>Edit Marker</h3>
+    <form id="editMarkerForm">
+      <input type="text" id="editMarkerName" placeholder="Name" autocomplete="off" data-tip="Marker name">
+      <div id="editMarkerListingSelectWrapper" data-tip="Marker listing (default: General)">
+        <div id="editMarkerListingCustom" class="custom-select">
+          <div class="selected"></div>
+          <ul class="options"></ul>
+          <div id="editMarkerCreateListingBtn" class="create-listing-btn" data-tip="Create new listing">
+            <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M23 10h-9V1h-4v9H1v4h9v9h4v-9h9z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div id="editMarkerListingInputWrapper">
+        <input type="text" id="editMarkerListingInput" placeholder="Type the new listing name..." />
+        <button id="editMarkerSaveListingBtn" class="save-button" data-tip="Save">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/>
+            <polyline points="7 3 7 8 15 8"/>
+          </svg>
+        </button>
+        <div id="editMarkerCancelListingBtn" class="cancel-button" data-tip="Cancel">
+          <svg width="14" height="14" viewBox="0 0 0.32 0.32">
+            <path fill-rule="evenodd" d="M.16.32a.16.16 0 1 0 0-.32.16.16 0 0 0 0 .32M.086.086a.02.02 0 0 1 .028 0L.16.132.206.086a.02.02 0 1 1 .028.028L.188.16l.046.046a.02.02 0 0 1-.028.028L.16.188.114.234A.02.02 0 0 1 .086.206L.132.16.086.114a.02.02 0 0 1 0-.028"/>
+          </svg>
+        </div>
+      </div>
+      <div id="editMarkerSubsetSelectWrapper" data-tip="Marker subset (default: Main)">
+        <div id="editMarkerSubsetCustom" class="custom-select">
+          <div class="selected"></div>
+          <ul class="options"></ul>
+          <div id="editMarkerCreateSubsetBtn" class="create-subset-btn" data-tip="Create new subset">
+            <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M23 10h-9V1h-4v9H1v4h9v9h4v-9h9z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div id="editMarkerSubsetInputWrapper">
+        <input type="text" id="editMarkerSubsetInput" placeholder="Type the new subset name..." />
+        <button id="editMarkerSaveSubsetBtn" class="save-button" data-tip="Save">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/>
+            <polyline points="7 3 7 8 15 8"/>
+          </svg>
+        </button>
+        <div id="editMarkerCancelSubsetBtn" class="cancel-button" data-tip="Cancel">
+          <svg width="14" height="14" viewBox="0 0 0.32 0.32">
+            <path fill-rule="evenodd" d="M.16.32a.16.16 0 1 0 0-.32.16.16 0 0 0 0 .32M.086.086a.02.02 0 0 1 .028 0L.16.132.206.086a.02.02 0 1 1 .028.028L.188.16l.046.046a.02.02 0 0 1-.028.028L.16.188.114.234A.02.02 0 0 1 .086.206L.132.16.086.114a.02.02 0 0 1 0-.028"/>
+          </svg>
+        </div>
+      </div>
+      <input type="datetime-local" id="editMarkerCreated" placeholder="Creation Date" data-tip="Creation date">
+      <textarea id="editMarkerNotes" placeholder="Notes" autocomplete="off"></textarea>
+      <div class="coords-container">
+        <input type="text" id="editMarkerLat" placeholder="Latitude" autocomplete="off" data-tip="Latitude">
+        <input type="text" id="editMarkerLng" placeholder="Longitude" autocomplete="off" data-tip="Longitude">
+      </div>
+      <div class="buttons-container">
+        <button type="button" id="managePhotosBtn" class="manage-photos-btn">Manage Photos</button>
+        <button type="submit">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Marker Details Overlay -->
+<div id="markerDetailsOverlay" class="overlay">
+  <div class="overlay-content">
+    <button type="button" class="overlay-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18"/></svg>
+    </button>
+    <div id="markerDetailsContent">
+      <div class="marker-details-header" style="text-align:center;">
+        <div class="marker-details-title"></div>
+        <div class="marker-details-listing"></div>
+        <div class="marker-details-subset"></div>
+        <div class="marker-details-date"></div>
+      </div>
+
+      <div class="marker-details-card">
+        <div class="marker-details-coordinates">
+          <div><b>Latitude:</b> <span id="markerDetailsLat"></span></div>
+          <div><b>Longitude:</b> <span id="markerDetailsLng"></span></div>
+        </div>
+      </div>
+
+      <div id="markerDetailsNotesCard" class="marker-details-card"></div>
+
+      <!-- Swiper container -->
+      <div class="swiper mySwiper" style="margin-top:20px;">
+        <div class="swiper-wrapper" id="markerPhotoGallery">
+          <div class="swiper-slide"></div>
+        </div>
+
+        <!-- Swiper navigation buttons -->
+        <div class="swiper-button-next" tabindex="-1"></div>
+        <div class="swiper-button-prev" tabindex="-1"></div>
+
+        <!-- Progressbar -->
+        <div class="swiper-scrollbar"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Copy Markers Overlay -->
+<div id="copyMarkersOverlay" class="overlay">
+  <div class="overlay-content">
+    <button type="button" class="overlay-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18"/></svg>
+    </button>
+    <h3>Copy Markers</h3>
+    <form id="copyMarkersForm">
+      <div id="copyMarkersMapSelectWrapper">
+        <div id="copyMarkersMapCustom" class="custom-select">
+          <div class="selected"></div>
+          <ul class="options"></ul>
+        </div>
+      </div>
+      <div class="buttons-container">
+        <button type="submit">Copy</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Move Markers Overlay -->
+<div id="moveMarkersOverlay" class="overlay">
+  <div class="overlay-content">
+    <button type="button" class="overlay-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18"/></svg>
+    </button>
+    <h3>Move Markers</h3>
+    <form id="moveMarkersForm">
+      <div id="moveMarkersMapSelectWrapper">
+        <div id="moveMarkersMapCustom" class="custom-select">
+          <div class="selected"></div>
+          <ul class="options"></ul>
+        </div>
+      </div>
+      <div class="buttons-container">
+        <button type="submit">Move</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- Gallery Overlay -->
+<div id="managePhotosOverlay">
+  <div class="manage-photos-wrapper">
+    <div id="managePhotosGallery"></div>
+  </div>
+</div>
+
+<!-- Uploading photos overlay -->
+<div id="busyOverlay">
+  <div class="spinner"></div>
+  <div class="busy-text"> Processing...</div>
+</div>
+
+
+<!-- Full-page auth screen (login + signup). Opaque landing page: the app stays hidden
+     behind it until authenticated. Toggled by show/hideAuthScreen(). -->
+<!-- Ships INACTIVE: boot decides. Showing it by default flashed the login form for
+     the length of the silent-refresh round-trip on every reload. -->
+<div id="authScreen">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <img src="logo.png" alt="MarkerVault" class="auth-logo">
+    </div>
+
+    <!-- Login pane -->
+    <div id="authLoginPane">
+      <form id="authLoginForm" class="auth-form">
+        <input type="text" id="authLoginUsername" placeholder="Username" autocomplete="off">
+        <input type="password" id="authLoginPassword" placeholder="Password" autocomplete="current-password">
+        <div class="buttons-container">
+          <button type="submit">Log in</button>
+        </div>
+      </form>
+      <div id="authError" class="auth-feedback" aria-live="polite"></div>
+      <p class="auth-switch">No account? <a href="#" id="authToSignup">Sign up</a></p>
+      <p class="auth-switch email-account-link" style="display:none;">
+        <a href="#" id="authToRecovery">Forgot password?</a>
+      </p>
+      <p class="auth-switch" id="authContextResend" style="display:none;">
+        <a href="#" id="authToResend">Resend verification</a>
+      </p>
+    </div>
+
+    <!-- Signup pane -->
+    <div id="authSignupPane" style="display:none;">
+      <form id="authSignupForm" class="auth-form">
+        <input type="text" id="authSignupUsername" placeholder="Choose a username" autocomplete="username">
+        <input type="password" id="authSignupPassword" placeholder="Choose a password" autocomplete="new-password">
+        <input type="email" id="authSignupEmail" placeholder="Email *" autocomplete="email">
+        <div class="auth-field-row">
+          <input type="text" id="authSignupFirstName" placeholder="First name *" autocomplete="given-name">
+          <input type="text" id="authSignupLastName" placeholder="Last name *" autocomplete="family-name">
+        </div>
+        <div class="auth-field-row">
+          <input type="text" id="authSignupCompany" placeholder="Company" autocomplete="organization">
+          <input type="text" id="authSignupDepartment" placeholder="Department">
+        </div>
+        <div class="auth-field-row">
+          <label class="auth-date-label">Birth date
+            <input type="date" id="authSignupBirthDate" autocomplete="bday">
+          </label>
+          <label class="auth-date-label">Sex
+            <select id="authSignupSex">
+              <option value="">Prefer not to say</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+        </div>
+        <div class="buttons-container">
+          <button type="submit">Sign up</button>
+        </div>
+      </form>
+      <p id="authSignupHint" class="auth-hint">Fields marked * are required. Password: 8+ chars with upper, lower, digit and a special character. New accounts need admin approval before first login.</p>
+      <div id="authSignupFeedback" class="auth-feedback" aria-live="polite"></div>
+      <p class="auth-switch">Have an account? <a href="#" id="authToLogin">Log in</a></p>
+    </div>
+
+    <div id="authRecoveryPane" style="display:none;">
+      <form id="authRecoveryForm" class="auth-form">
+        <input type="email" id="authRecoveryEmail" placeholder="Account email" autocomplete="email">
+        <div class="buttons-container">
+          <button type="submit">Send reset link</button>
+        </div>
+      </form>
+      <div id="authRecoveryStatus" class="auth-feedback" aria-live="polite"></div>
+      <p class="auth-switch"><a href="#" class="authBackToLogin">Back to log in</a></p>
+    </div>
+
+    <div id="authResendPane" style="display:none;">
+      <form id="authResendForm" class="auth-form">
+        <input type="email" id="authResendEmail" placeholder="Email to verify" autocomplete="email">
+        <div class="buttons-container">
+          <button type="submit">Resend verification</button>
+        </div>
+      </form>
+      <div id="authResendStatus" class="auth-feedback" aria-live="polite"></div>
+      <p class="auth-switch"><a href="#" class="authBackToLogin">Back to log in</a></p>
+    </div>
+
+    <div id="authVerifyPane" style="display:none;">
+      <div id="authVerifyStatus" class="auth-feedback" aria-live="polite">Verifying your email address...</div>
+      <p class="auth-switch"><a href="#" class="authBackToLogin">Go to log in</a></p>
+    </div>
+
+    <div id="authResetPane" style="display:none;">
+      <div id="authResetFields" class="auth-reset-fields" inert>
+        <form id="authResetForm" class="auth-form">
+          <input type="password" id="authResetPassword" placeholder="New password" autocomplete="new-password">
+          <input type="password" id="authResetRepeat" placeholder="Repeat new password" autocomplete="new-password">
+          <div class="buttons-container">
+            <button type="submit">Reset password</button>
+          </div>
+        </form>
+        <p id="authResetHint" class="auth-hint">Password: 8+ chars with upper, lower, digit and a special character.</p>
+      </div>
+      <div id="authResetStatus" class="auth-feedback" aria-live="polite">Checking reset link...</div>
+      <p class="auth-switch"><a href="#" class="authBackToLogin">Back to log in</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- Rate-limit landing page: shown instead of the login form when boot hits the edge
+     429 (reload spam) while the session is still valid. Retry is click-driven — no
+     timers. Toggled by show/hideLimitScreen(). -->
+<!-- Mirrors the standalone 404 page: same shell, status numeral, one action. -->
+<div id="limitScreen">
+  <div class="auth-card status-card">
+    <div class="auth-brand">
+      <img src="logo.png" alt="MarkerVault" class="auth-logo">
+    </div>
+    <h1>429</h1>
+    <h2>Slow your horses</h2>
+    <p>That was a few too many requests in a row. Give it a few seconds, then try
+      again — your session is still there.</p>
+    <button type="button" id="limitRetryBtn">Try again</button>
+  </div>
+</div>
+
+<!-- Strict refresh rotation requires browser-managed cross-tab serialization. A clear
+     capability gate is safer than a session that appears to work until a second tab
+     presents the rotated cookie and is treated as replay. -->
+<div id="unsupportedScreen">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <img src="logo.png" alt="MarkerVault" class="auth-logo">
+      <h2>Browser not supported</h2>
+    </div>
+    <p class="auth-hint">MarkerVault needs the Web Locks feature to keep your session
+      safe across tabs, but this browser or configuration does not provide it. Private
+      or lockdown modes can disable this feature.</p>
+  </div>
+</div>
+
+<!-- Full-page admin screen (user + group management) — admins only. Opaque page like
+     #authScreen; the create-user/reset-pwd overlays stack above it. -->
+<div id="adminScreen">
+  <div class="admin-screen-header">
+    <h2>Administration</h2>
+    <button type="button" id="adminBackBtn">Back to map</button>
+  </div>
+  <!-- The three user tabs are views over the same users panel, split by account
+       status (approved/disabled/pending) — so no per-row status labels needed.
+       Management Groups is super-admin only (shown at open time); DOM ids and URL
+       paths keep "group"/"mgroup" naming — adblockers eat "share" in ids/paths. -->
+  <div class="admin-tabs">
+    <button type="button" class="admin-tab active" data-admintab="active">Active Users</button>
+    <button type="button" class="admin-tab" data-admintab="inactive">Inactive Users</button>
+    <button type="button" class="admin-tab" data-admintab="pending" id="adminPendingTabBtn" style="display:none;">Pending Approval</button>
+    <button type="button" class="admin-tab" data-admintab="groups">Share Groups</button>
+    <button type="button" class="admin-tab" data-admintab="mgroups" id="adminMgmtTabBtn" style="display:none;">Management Groups</button>
+    <button type="button" class="admin-tab" data-admintab="audit" id="adminAuditTabBtn" style="display:none;">Audit</button>
+  </div>
+
+  <!-- Users tabs: user list on the left, profile + actions + map metadata on the right -->
+  <div class="admin-tab-panel" id="adminUsersPanel">
+    <div class="admin-master">
+      <input type="text" id="adminUserFilter" class="admin-list-filter" placeholder="Filter users..." autocomplete="off">
+      <div id="adminUserList" class="admin-user-list"></div>
+      <div class="buttons-container admin-master-footer">
+        <button type="button" id="adminCreateUserBtn">Create User</button>
+      </div>
+    </div>
+    <div class="admin-detail" id="adminUserDetail">
+      <p class="admin-detail-empty">Select a user to see their profile and maps.</p>
+    </div>
+  </div>
+
+  <!-- Share Groups tab: group list on the left, members management on the right -->
+  <div class="admin-tab-panel" id="adminGroupsPanel" style="display:none;">
+    <div class="admin-master">
+      <input type="text" id="adminGroupFilter" class="admin-list-filter" placeholder="Filter groups..." autocomplete="off">
+      <div id="adminGroupList" class="admin-user-list"></div>
+      <div class="admin-master-footer admin-group-create">
+        <input type="text" id="newGroupName" placeholder="New group name...">
+        <button type="button" id="adminCreateGroupBtn">Create</button>
+      </div>
+    </div>
+    <div class="admin-detail" id="adminGroupDetail">
+      <p class="admin-detail-empty">Select a group to manage its members.</p>
+    </div>
+  </div>
+
+  <!-- Management Groups tab (super-admin only): a structural clone of the Share
+       Groups tab, wired to the /admin/mgmt-groups routes. -->
+  <div class="admin-tab-panel" id="adminMgroupsPanel" style="display:none;">
+    <div class="admin-master">
+      <input type="text" id="adminMgroupFilter" class="admin-list-filter" placeholder="Filter groups..." autocomplete="off">
+      <div id="adminMgroupList" class="admin-user-list"></div>
+      <div class="admin-master-footer admin-group-create">
+        <input type="text" id="newMgroupName" placeholder="New group name...">
+        <button type="button" id="adminCreateMgroupBtn">Create</button>
+      </div>
+    </div>
+    <div class="admin-detail" id="adminMgroupDetail">
+      <p class="admin-detail-empty">Select a group to manage its members.</p>
+    </div>
+  </div>
+
+  <!-- Audit tab (super-admin only): read-only, lazy-loaded and explicitly paged. -->
+  <div class="admin-tab-panel" id="adminAuditPanel" style="display:none;">
+    <div class="admin-detail admin-audit-detail">
+      <div class="admin-detail-header">
+        <div>
+          <div class="admin-detail-title">Audit log</div>
+          <div class="admin-detail-realname">Governance and authentication events · newest first · local time</div>
+        </div>
+      </div>
+      <form id="adminAuditFilters" class="audit-filters">
+        <label class="audit-filter-field">
+          <span>Begin</span>
+          <input type="date" id="adminAuditBegin">
+        </label>
+        <label class="audit-filter-field">
+          <span>End</span>
+          <input type="date" id="adminAuditEnd">
+        </label>
+        <label class="audit-filter-field audit-filter-event">
+          <span>Event</span>
+          <select id="adminAuditEvent">
+            <option value="">All events</option>
+          </select>
+        </label>
+        <label class="audit-filter-field audit-filter-search">
+          <span>Search</span>
+          <input type="search" id="adminAuditSearch" placeholder="Search record details..." autocomplete="off" maxlength="200">
+        </label>
+        <div class="audit-filter-actions">
+          <button type="submit" class="audit-filter-apply">Apply</button>
+          <button type="button" id="adminAuditClear" class="audit-filter-clear">Clear</button>
+        </div>
+        <div id="adminAuditFilterError" class="audit-filter-error" role="status"></div>
+      </form>
+      <div id="adminAuditList" class="audit-list">
+        <p class="admin-detail-empty">Open this tab to load audit events.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create user overlay (admin) — stacks on top of User Management -->
+<div id="createUserOverlay" class="overlay">
+  <div class="overlay-content">
+    <button type="button" class="overlay-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18"/></svg>
+    </button>
+    <h3>Create User</h3>
+    <form id="createUserForm" class="profile-form">
+      <input type="text" id="createUserUsername" placeholder="Username *" autocomplete="off">
+      <input type="password" id="createUserPassword" placeholder="Password *" autocomplete="new-password">
+      <input type="email" id="createUserEmail" placeholder="Email *" autocomplete="off">
+      <div class="auth-field-row">
+        <input type="text" id="createUserFirstName" placeholder="First name *" autocomplete="off">
+        <input type="text" id="createUserLastName" placeholder="Last name *" autocomplete="off">
+      </div>
+      <div class="auth-field-row">
+        <input type="text" id="createUserCompany" placeholder="Company" autocomplete="off">
+        <input type="text" id="createUserDepartment" placeholder="Department" autocomplete="off">
+      </div>
+      <div class="auth-field-row">
+        <label class="auth-date-label">Birth date
+          <input type="date" id="createUserBirthDate" autocomplete="off">
+        </label>
+        <label class="auth-date-label">Sex
+          <select id="createUserSex">
+            <option value="">Prefer not to say</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+      </div>
+      <label class="auth-date-label" id="createUserRoleField">Role
+        <select id="createUserRole">
+          <option value="user">User</option>
+          <option value="admin">Admin</option>
+        </select>
+      </label>
+      <p class="auth-hint">Password: 8+ chars with upper, lower, digit and a special character. The account is created approved and can log in immediately.</p>
+      <div id="createUserError" class="auth-error"></div>
+      <div id="createUserMessage" class="auth-message"></div>
+      <div class="buttons-container">
+        <button type="submit">Create</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit user profile overlay (admin/super edits a managed account, username included) -->
+<div id="editUserOverlay" class="overlay">
+  <div class="overlay-content">
+    <button type="button" class="overlay-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18"/></svg>
+    </button>
+    <h3>Edit Profile</h3>
+    <form id="editUserForm" class="profile-form">
+      <input type="text" id="editUserUsername" placeholder="Username *" autocomplete="off">
+      <input type="email" id="editUserEmail" placeholder="Email *" autocomplete="off">
+      <div class="auth-field-row">
+        <input type="text" id="editUserFirstName" placeholder="First name *" autocomplete="off">
+        <input type="text" id="editUserLastName" placeholder="Last name *" autocomplete="off">
+      </div>
+      <div class="auth-field-row">
+        <input type="text" id="editUserCompany" placeholder="Company" autocomplete="off">
+        <input type="text" id="editUserDepartment" placeholder="Department" autocomplete="off">
+      </div>
+      <div class="auth-field-row">
+        <label class="auth-date-label">Birth date
+          <input type="date" id="editUserBirthDate" autocomplete="off">
+        </label>
+        <label class="auth-date-label">Sex
+          <select id="editUserSex">
+            <option value="">Prefer not to say</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+      </div>
+      <div id="editUserError" class="auth-error"></div>
+      <div id="editUserMessage" class="auth-message"></div>
+      <div class="buttons-container">
+        <button type="submit">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Reset password overlay (admin sets a new password for a user) -->
+<div id="resetPwdOverlay" class="overlay">
+  <div class="overlay-content">
+    <button type="button" class="overlay-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18"/></svg>
+    </button>
+    <h3>Reset Password</h3>
+    <p class="auth-hint">Set a new password for <strong id="resetPwdTarget"></strong>. They will be logged out and must use the new password.</p>
+    <form id="resetPwdForm" class="profile-form">
+      <input type="password" id="resetPwdNew" placeholder="New password" autocomplete="new-password">
+      <input type="password" id="resetPwdRepeat" placeholder="Repeat new password" autocomplete="new-password">
+      <p class="auth-hint">Password: 8+ chars with upper, lower, digit and a special character.</p>
+      <div id="resetPwdError" class="auth-error"></div>
+      <div id="resetPwdMessage" class="auth-message"></div>
+      <div class="buttons-container">
+        <button type="submit">Set password</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Share map overlay (owner/admin) -->
+<div id="collabOverlay" class="overlay">
+  <div class="overlay-content">
+    <button type="button" class="overlay-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18"/></svg>
+    </button>
+    <h3 id="collabOverlayTitle">Share Map</h3>
+    <div class="collab-add-row">
+      <select id="collabTypeSelect">
+        <option value="user">User</option>
+        <option value="group">Group</option>
+      </select>
+      <select id="collabAddRole">
+        <option value="viewer">viewer</option>
+        <option value="editor">editor</option>
+      </select>
+      <button type="button" id="collabAddBtn">Share</button>
+    </div>
+    <div id="collabPickerBox"></div>
+    <div id="collabList" class="collab-list"></div>
+  </div>
+</div>
+
+<!-- User profile overlay (view + edit own profile) -->
+<div id="profileOverlay" class="overlay">
+  <div class="overlay-content">
+    <button type="button" class="overlay-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18"/></svg>
+    </button>
+    <h3>My Profile</h3>
+    <div class="profile-avatar-block">
+      <img id="profileAvatarPreview" class="profile-avatar-preview"
+           src="assets/images/default-user-thumb.png" alt="Profile avatar">
+      <div class="profile-avatar-controls">
+        <button type="button" id="profileAvatarUploadBtn" class="profile-avatar-upload-btn">Upload</button>
+        <input type="file" id="profileAvatarInput" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif" hidden>
+        <button type="button" id="profileAvatarRemoveBtn" class="profile-avatar-remove-btn">Remove</button>
+      </div>
+    </div>
+    <div class="profile-readonly">
+      <div><span class="profile-ro-label">Username</span><span id="profileUsername"></span></div>
+      <div><span class="profile-ro-label">Role</span><span id="profileRole"></span></div>
+    </div>
+    <form id="profileForm" class="profile-form">
+      <div class="auth-field-row">
+        <input type="text" id="profileFirstName" placeholder="First name *" autocomplete="given-name">
+        <input type="text" id="profileLastName" placeholder="Last name *" autocomplete="family-name">
+      </div>
+      <div class="auth-field-row">
+        <input type="text" id="profileCompany" placeholder="Company" autocomplete="organization">
+        <input type="text" id="profileDepartment" placeholder="Department">
+      </div>
+      <div class="profile-email-field">
+        <input type="email" id="profileEmail" placeholder="Email *" autocomplete="email">
+        <span id="profileEmailIndicator" class="profile-email-indicator" hidden></span>
+      </div>
+      <div class="auth-field-row">
+        <label class="auth-date-label">Birth date
+          <input type="date" id="profileBirthDate" autocomplete="bday">
+        </label>
+        <label class="auth-date-label">Sex
+          <select id="profileSex">
+            <option value="">Prefer not to say</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+      </div>
+      <div class="profile-feedback-slot">
+        <div id="profileEmailStatus" class="profile-email-status" aria-live="polite"></div>
+        <div id="profileError" class="auth-error"></div>
+        <div id="profileMessage" class="auth-message"></div>
+      </div>
+      <div class="buttons-container">
+        <button type="submit">Save</button>
+      </div>
+    </form>
+    <div class="profile-account-actions">
+      <button type="button" id="profileChangePwdBtn" class="account-action-link">Change Password</button>
+      <button type="button" id="deleteAccountBtn" class="danger-link">Delete my account</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete account confirmation overlay (type-username-to-confirm) -->
+<div id="deleteAccountOverlay" class="overlay">
+  <div class="overlay-content">
+    <button type="button" class="overlay-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18"/></svg>
+    </button>
+    <h3>Delete Account</h3>
+    <p class="auth-hint">This permanently deletes your account and <strong>all your maps, markers and photos</strong>. This cannot be undone.</p>
+    <form id="deleteAccountForm" class="profile-form">
+      <label class="auth-date-label">Type your username to confirm
+        <input type="text" id="deleteAccountConfirm" placeholder="username" autocomplete="off">
+      </label>
+      <div id="deleteAccountError" class="auth-error"></div>
+      <div class="buttons-container">
+        <button type="submit" id="deleteAccountConfirmBtn" class="destructive-btn">Delete forever</button>
+        <button type="button" id="deleteAccountCancelBtn">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Change password overlay -->
+<div id="changePwdOverlay" class="overlay">
+  <div class="overlay-content">
+    <button type="button" class="overlay-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18"/></svg>
+    </button>
+    <h3>Change Password</h3>
+    <form id="changePwdForm" class="profile-form">
+      <input type="password" id="changePwdOld" placeholder="Current password" autocomplete="current-password">
+      <input type="password" id="changePwdNew" placeholder="New password" autocomplete="new-password">
+      <input type="password" id="changePwdRepeat" placeholder="Repeat new password" autocomplete="new-password">
+      <p class="auth-hint">Password: 8+ chars with upper, lower, digit and a special character. You will be logged out after changing it.</p>
+      <div id="changePwdError" class="auth-error"></div>
+      <div id="changePwdMessage" class="auth-message"></div>
+      <div class="buttons-container">
+        <button type="submit">Change password</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Durable server-authored outcomes. Closing never changes seen state; each row
+     toggles its own state and the explicit high-water action marks the snapshot. -->
+<div id="notifHistoryOverlay" class="overlay">
+  <div class="overlay-content notif-history-panel">
+    <button type="button" class="overlay-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18"/></svg>
+    </button>
+    <div class="notif-history-header">
+      <h3>Notifications</h3>
+    </div>
+    <div id="notifHistoryList" class="notif-history-list" aria-live="polite"></div>
+    <div class="buttons-container notif-history-actions">
+      <button type="button" id="notifHistoryMarkSeenBtn" disabled>Mark all seen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast notifications -->
+  <div id="notification-container"></div>
+
+  <!-- Context menus -->
+  <div id="sidebarMapContextMenu">
+    <div class="menu-item" data-action="sidebar-map-details">Details</div>
+    <div class="menu-item" data-action="sidebar-map-share">Share</div>
+    <div class="menu-item" data-action="sidebar-map-edit">Edit</div>
+    <div class="menu-item" data-action="sidebar-map-delete">Delete</div>
+  </div>
+
+  <div id="sidebarMarkerContextMenu">
+    <div class="menu-item" data-action="sidebar-marker-details">Details</div>
+    <div class="menu-item" data-action="sidebar-marker-edit">Edit</div>
+    <div class="menu-item" data-action="sidebar-marker-show">Show</div>
+    <div class="menu-item" data-action="sidebar-marker-hide">Hide</div>
+    <div class="menu-item" data-action="sidebar-marker-copy">Copy</div>
+    <div class="menu-item" data-action="sidebar-marker-move">Move</div>
+    <div class="menu-item" data-action="sidebar-marker-delete">Delete</div>
+    <div role="separator" class="menu-separator"></div>
+    <div class="menu-item" data-action="sidebar-marker-copy-coords">Copy Coordinates</div>
+    <div class="menu-item" data-action="sidebar-marker-set-start">Set as Route Start</div>
+    <div class="menu-item" data-action="sidebar-marker-set-end">Set as Route End</div>
+    <div role="separator" class="menu-separator"></div>
+    <div class="menu-item" data-action="sidebar-marker-zoom-map">Zoom Here</div>
+    <div class="menu-item" data-action="sidebar-marker-center-map">Center Map Here</div>
+  </div>
+
+  <div id="mapContextMenu">
+    <div class="menu-item" data-action="add-marker-here">Add Marker Here</div>
+    <div role="separator" class="menu-separator"></div>
+    <div class="menu-item" data-action="copy-coords">Copy Coordinates</div>
+    <div class="menu-item" data-action="set-start">Set as Route Start</div>
+    <div class="menu-item" data-action="set-end">Set as Route End</div>
+    <div role="separator" class="menu-separator"></div>
+    <div class="menu-item" data-action="zoom-map">Zoom Here</div>
+    <div class="menu-item" data-action="center-map">Center Map Here</div>
+    <div class="menu-item" data-action="reset-map">Reset Map Position</div>
+    <div class="menu-item" data-action="reset-filters">Clear Marker Filters</div>
+    <div class="menu-item" data-action="clear-temp">Clear Temporary Markers</div>
+  </div>
+
+  <div id="storedMarkerContextMenu">
+    <div class="menu-item" data-action="view-stored-marker-details">Details</div>
+    <div class="menu-item" data-action="edit-stored-marker">Edit</div>
+    <div class="menu-item" data-action="hide-stored-marker">Hide</div>
+    <div class="menu-item" data-action="copy-stored-marker">Copy</div>
+    <div class="menu-item" data-action="move-stored-marker">Move</div>
+    <div class="menu-item" data-action="delete-stored-marker">Delete</div>
+    <div role="separator" class="menu-separator"></div>
+    <div class="menu-item" data-action="copy-stored-marker-coords">Copy Coordinates</div>
+    <div class="menu-item" data-action="set-stored-marker-start">Set as Route Start</div>
+    <div class="menu-item" data-action="set-stored-marker-end">Set as Route End</div>
+    <div role="separator" class="menu-separator"></div>
+    <div class="menu-item" data-action="zoom-stored-marker-map">Zoom Here</div>
+    <div class="menu-item" data-action="center-stored-marker-map">Center Map Here</div>
+  </div>
+
+  <div id="tempMarkerContextMenu">
+    <div class="menu-item" data-action="save-temp-marker">Save</div>
+    <div class="menu-item" data-action="delete-temp-marker">Delete</div>
+    <div role="separator" class="menu-separator"></div>
+    <div class="menu-item" data-action="copy-temp-marker-coords">Copy Coordinates</div>
+    <div class="menu-item" data-action="set-temp-marker-start">Set as Route Start</div>
+    <div class="menu-item" data-action="set-temp-marker-end">Set as Route End</div>
+    <div role="separator" class="menu-separator"></div>
+    <div class="menu-item" data-action="zoom-temp-marker-map">Zoom Here</div>
+    <div class="menu-item" data-action="center-temp-marker-map">Center Map Here</div>
+  </div>
+
+  <div id="searchMarkerContextMenu">
+    <div class="menu-item" data-action="save-search-marker">Save</div>
+    <div class="menu-item" data-action="delete-search-marker">Delete</div>
+    <div role="separator" class="menu-separator"></div>
+    <div class="menu-item" data-action="copy-search-marker-coords">Copy Coordinates</div>
+    <div class="menu-item" data-action="set-search-marker-start">Set as Route Start</div>
+    <div class="menu-item" data-action="set-search-marker-end">Set as Route End</div>
+    <div role="separator" class="menu-separator"></div>
+    <div class="menu-item" data-action="zoom-search-marker-map">Zoom Here</div>
+    <div class="menu-item" data-action="center-search-marker-map">Center Map Here</div>
+  </div>
+
+  <!-- Map container -->
+  <div id="map">
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="collapsed">
+
+    <!-- Account section: click the name to open the account menu (profile/session) -->
+    <div class="sidebar-account">
+      <div class="sidebar-user-profile" id="accountToggle" role="button" tabindex="0" aria-expanded="false" aria-controls="accountMenu">
+        <img src="assets/images/default-user-thumb.png" alt="User Profile" class="user-profile-img">
+        <span class="user-profile-name">Account</span>
+      </div>
+      <div class="account-menu" id="accountMenu">
+        <button type="button" class="account-menu-item" id="accountProfileBtn">
+          <svg viewBox="0 0 1.5 1.5" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M.75.688A.313.313 0 1 0 .437.375.313.313 0 0 0 .75.688m0-.5a.188.188 0 1 1-.188.188A.19.19 0 0 1 .75.188M.188 1.375v-.25A.313.313 0 0 1 .501.812h.5a.313.313 0 0 1 .313.313v.25a.063.063 0 0 1-.125 0v-.25a.19.19 0 0 0-.188-.188H.5a.19.19 0 0 0-.188.188v.25a.063.063 0 0 1-.125 0"></path>
+          </svg>
+          <span>Profile</span>
+        </button>
+        <button type="button" class="account-menu-item" id="notifHistoryBtn">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M12 22a2.5 2.5 0 0 0 2.35-1.67h-4.7A2.5 2.5 0 0 0 12 22Zm7-6.5-1.75-2.08V9a5.26 5.26 0 0 0-4.17-5.15V3a1.08 1.08 0 0 0-2.16 0v.85A5.26 5.26 0 0 0 6.75 9v4.42L5 15.5V18h14v-2.5Z"></path>
+          </svg>
+          <span>Notifications</span>
+          <span id="notifHistoryBadge" class="notif-history-badge" hidden></span>
+        </button>
+        <button type="button" class="account-menu-item" id="openAdminPanelBtn" style="display:none;">
+          <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M17.309 27.537v35.358c0 26.4 23.386 39.092 42.169 49.292l.501.268.508-.268c18.784-10.2 42.169-22.892 42.169-49.292V27.537L59.978 7.433zm42.671 92.471a3.6 3.6 0 0 1-1.687-.431l-2.181-1.186C36.756 107.88 10.25 93.494 10.25 62.894V25.299c0-1.369.791-2.612 2.026-3.198L58.483.339a3.49 3.49 0 0 1 3 0l46.207 21.762a3.54 3.54 0 0 1 2.026 3.198v37.595c0 30.6-26.513 44.986-45.861 55.496l-2.181 1.186a3.6 3.6 0 0 1-1.694.431ZM89.177 85.78H69.589l-5.725-5.718v-5.238h-7.299v-7.299h-5.231l-3.656-3.656q-.18.009-.36.007c-11.005 0-19.955-8.951-19.955-19.955s8.951-19.962 19.955-19.962 19.955 8.958 19.955 19.962q.002.182-.007.353l21.911 21.918zm-16.666-7.059h9.607v-9.607L59.904 46.885l.247-2.329c.064-7.744-5.725-13.539-12.833-13.539S34.422 36.812 34.422 43.92c0 7.115 5.788 12.896 12.896 12.896l2.951-.332 3.988 3.981h9.367v7.299h7.299v9.374zM52.924 44.123c0 2.922-2.372 5.294-5.294 5.294s-5.294-2.372-5.294-5.294 2.372-5.294 5.294-5.294a5.296 5.296 0 0 1 5.294 5.294" fill-rule="evenodd"></path>
+          </svg>
+          <span>Administration</span>
+        </button>
+        <button type="button" class="account-menu-item account-menu-logout" id="logoutBtn">
+          <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path fill="none" d="M0 0h50v50H0z"></path>
+            <path d="M25 45.833C13.494 45.833 4.167 36.506 4.167 25S13.494 4.167 25 4.167A20.81 20.81 0 0 1 41.667 12.5h-5.646a16.667 16.667 0 1 0 .002 25h5.646A20.81 20.81 0 0 1 25 45.833m14.583-12.5v-6.25H22.916v-4.167h16.667v-6.249L50 25z"></path>
+          </svg>
+          <span>Logout</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Route Section -->
+    <div class="sidebar-section">
+      <div class="section-toggle">
+        <svg width="24" height="24" viewBox="0 0 0.72 0.72" xmlns="http://www.w3.org/2000/svg">
+          <g fill="none">
+            <path d="M.72 0v.72H0V0zM.378.698H.371L.37.71v.002l.003.002h.001L.377.712V.698L.376.697M.384.693H.383L.378.696l.001.013.006.003h.001V.711L.385.692H.384m-.022 0H.361v.019l.001.001h.001L.368.709.369.696z"/>
+            <path d="M.54.48a.09.09 0 1 1 0 .18.09.09 0 0 1 0-.18M.465.12a.135.135 0 1 1 0 .27h-.21a.075.075 0 0 0 0 .15H.39a.03.03 0 1 1 0 .06H.255a.135.135 0 1 1 0-.27h.21a.075.075 0 0 0 0-.15H.33a.03.03 0 1 1 0-.06zM.18.06a.09.09 0 1 1 0 .18.09.09 0 0 1 0-.18" fill="#222"/>
+          </g>
+        </svg>
+        <div class="section-title">Route Planner</div>
+      </div>
+      <div class="section-content route-fields">
+        <div class="inputs-wrapper">
+          <div class="inputs-column">
+            <div class="route-input-wrapper">
+              <svg width="24" height="24" viewBox="0 0 3 3" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="route-input-svg">
+                <path d="M1.5 0a.105.105 0 0 0-.105.105V2.79h-.287a.105.105 0 0 0-.105.105.105.105 0 0 0 .105.105h.75a.105.105 0 0 0 .105-.105.105.105 0 0 0-.105-.105h-.253V1.41h1.29A.105.105 0 0 0 3 1.305v-1.2A.105.105 0 0 0 2.895 0zm.12.21h1.17v.99H1.62z" fill="#222"/>
+              </svg>
+              <input type="text" id="startAddress" placeholder="Start Waypoint">
+              <div class="clear-waypoint-text-btn" data-for="startAddress">
+                <svg width="14" height="14" viewBox="0 0 0.32 0.32">
+                  <path fill-rule="evenodd" d="M.16.32a.16.16 0 1 0 0-.32.16.16 0 0 0 0 .32M.086.086a.02.02 0 0 1 .028 0L.16.132.206.086a.02.02 0 1 1 .028.028L.188.16l.046.046a.02.02 0 0 1-.028.028L.16.188.114.234A.02.02 0 0 1 .086.206L.132.16.086.114a.02.02 0 0 1 0-.028"/>
+                </svg>
+              </div>
+            </div>
+
+            <div class="route-input-wrapper">
+              <svg width="24" height="24" viewBox="0 0 3 3" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="route-input-svg">
+                <path d="M1.5 0a.105.105 0 0 0-.105.105V2.79h-.287a.105.105 0 0 0-.105.105.105.105 0 0 0 .105.105h.75a.105.105 0 0 0 .105-.105.105.105 0 0 0-.105-.105h-.253V1.41h1.29A.105.105 0 0 0 3 1.305v-1.2A.105.105 0 0 0 2.895 0zm.414.21h.294v.223h.294V.21h.288v.223h-.288v.294h.288v.294h-.288V1.2h-.294v-.179h-.294V1.2H1.62v-.179h.294V.727H1.62V.433h.294zm0 .223v.294h.294V.433zm.294.294v.294h.294V.727z" fill="#222"/>
+              </svg>
+              <input type="text" id="endAddress" placeholder="End Waypoint">
+              <div class="clear-waypoint-text-btn" data-for="endAddress">
+                <svg width="14" height="14" viewBox="0 0 0.32 0.32">
+                  <path fill-rule="evenodd" d="M.16.32a.16.16 0 1 0 0-.32.16.16 0 0 0 0 .32M.086.086a.02.02 0 0 1 .028 0L.16.132.206.086a.02.02 0 1 1 .028.028L.188.16l.046.046a.02.02 0 0 1-.028.028L.16.188.114.234A.02.02 0 0 1 .086.206L.132.16.086.114a.02.02 0 0 1 0-.028"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div id="invert-route-btn" data-tip="Invert route waypoints">
+            <svg width="30" height="30" viewBox="0 0 0.9 0.9" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M.3.75.287.763.3.776.313.763zM.375.244a.019.019 0 0 0 0-.037zM.174.651l.112.112.027-.027L.201.624zm.139.112L.425.651.398.624.286.736zM.319.75V.3H.282v.45zm0-.45A.056.056 0 0 1 .375.244V.207A.094.094 0 0 0 .281.3zM.6.15.587.137.6.124l.013.013zm0 .487h.019zM.525.731a.019.019 0 0 1 0-.037zM.474.249.586.137l.027.027-.112.112zM.613.137l.112.112-.027.027L.586.164zM.619.15v.487H.582V.15zm0 .487a.094.094 0 0 1-.094.094V.694A.056.056 0 0 0 .581.638z" fill="#222"/>
+            </svg>
+          </div>
+        </div>
+        <button id="generate-route-btn">Calculate</button>
+      </div>
+    </div>
+
+    <!-- Maps Section -->
+    <div class="sidebar-section">
+      <div class="section-toggle">
+        <svg width="24" height="24" viewBox="0 0 0.72 0.72" xmlns="http://www.w3.org/2000/svg">
+          <path d="M.64.151.46.091H.441L.27.15.1.091a.03.03 0 0 0-.027.004A.03.03 0 0 0 .06.12v.42a.03.03 0 0 0 .02.028l.18.06a.03.03 0 0 0 .019 0L.45.571.62.63h.01A.03.03 0 0 0 .647.624.03.03 0 0 0 .66.6V.18A.03.03 0 0 0 .64.152m-.4.406L.12.518V.162l.12.04Zm.18-.04L.3.558V.202l.12-.04Zm.18.04L.48.518V.162l.12.04Z" fill="#222"/>
+        </svg>
+        <div class="section-title">Maps</div>
+        <div class="sidebar-maps-menu-container">
+          <button class="sidebar-maps-menu-btn" aria-haspopup="true" aria-expanded="false">⋮</button>
+          <ul class="sidebar-maps-menu-dropdown" role="menu">
+            <li role="menuitem" id="sidebar-maps-createMap">Create</li>
+            <li role="separator"></li>
+            <li role="menuitem" id="sidebar-maps-selectAll">Select all</li>
+            <li role="menuitem" id="sidebar-maps-clear">Clear selection</li>
+            <li role="separator"></li>
+            <li role="menuitem" id="sidebar-maps-expandSelected">Expand</li>
+            <li role="menuitem" id="sidebar-maps-collapseSelected">Collapse</li>
+            <li role="menuitem" id="sidebar-maps-collabSelected">Share</li>
+            <li role="menuitem" id="sidebar-maps-deleteSelected">Delete</li>
+          </ul>
+        </div>
+      </div>
+      <div class="section-content">
+        <!-- Map group filter (My Maps / Shared with Me) — same pattern as the marker filters -->
+        <div class="mapsGroupFilter">
+          <div class="mapsGroupFilter-selected" data-value="mine">
+            <span class="mapsGroupFilter-text">My Maps</span>
+            <svg width="24" height="24" viewBox="-0.195 0 0.96 0.96" xmlns="http://www.w3.org/2000/svg">
+              <path d="M.564.342.327.639C.305.666.27.666.248.639L.011.342C-.011.314 0 .292.034.292H.54c.036 0 .046.022.023.05"/>
+            </svg>
+          </div>
+          <ul class="mapsGroupFilter-list"></ul>
+        </div>
+        <div id="mapsSearchInputWrapper">
+          <input type="text" id="mapsSearchInput" placeholder="Search maps..." />
+          <div class="clear-maps-search-text-btn" data-for="mapsSearchInput">
+            <svg width="14" height="14" viewBox="0 0 0.32 0.32">
+              <path fill-rule="evenodd" d="M.16.32a.16.16 0 1 0 0-.32.16.16 0 0 0 0 .32M.086.086a.02.02 0 0 1 .028 0L.16.132.206.086a.02.02 0 1 1 .028.028L.188.16l.046.046a.02.02 0 0 1-.028.028L.16.188.114.234A.02.02 0 0 1 .086.206L.132.16.086.114a.02.02 0 0 1 0-.028"/>
+            </svg>
+          </div>
+        </div>
+        <div id="mapsList"></div>
+      </div>
+    </div>
+
+    <!-- Markers Section -->
+    <div class="sidebar-section">
+      <div class="section-toggle">
+        <svg width="24" height="24" viewBox="0 0 0.72 0.72" xmlns="http://www.w3.org/2000/svg" fill="none">
+          <path stroke="#222" stroke-linecap="round" stroke-linejoin="round" stroke-width=".06" d="M.54.48C.577.496.6.517.6.54.6.59.493.63.36.63S.12.59.12.54C.12.517.143.496.18.48"/>
+          <path stroke="#222" stroke-linecap="round" stroke-linejoin="round" stroke-width=".06" d="M.51.253C.51.346.36.51.36.51S.21.346.21.253.277.09.36.09s.15.071.15.163"/>
+          <path stroke="#222" stroke-linecap="round" stroke-linejoin="round" stroke-width=".06" d="M.39.24a.03.03 0 0 1-.03.03.03.03 0 0 1-.03-.03.03.03 0 0 1 .06 0"/>
+        </svg>
+        <div class="section-title">Markers</div>
+        <div class="sidebar-markers-menu-container">
+          <button class="sidebar-markers-menu-btn" aria-haspopup="true" aria-expanded="false">⋮</button>
+          <ul class="sidebar-markers-menu-dropdown" role="menu">
+            <li role="menuitem" id="sidebar-markers-importMarkers">Import KML file...</li>
+            <li role="menuitem" id="sidebar-markers-importGoogleMapsLink">Import Google Maps link...</li>
+            <li role="menuitem" id="sidebar-markers-resetFilters">Reset filters</li>
+            <li role="separator"></li>
+            <li role="menuitem" id="sidebar-markers-selectAll">Select all</li>
+            <li role="menuitem" id="sidebar-markers-clear">Clear selection</li>
+            <li role="separator"></li>
+            <li role="menuitem" id="sidebar-markers-countSelected">Count</li>
+            <li role="menuitem" id="sidebar-markers-expandSelected">Expand</li>
+            <li role="menuitem" id="sidebar-markers-collapseSelected">Collapse</li>
+            <li role="menuitem" id="sidebar-markers-showSelected">Show</li>
+            <li role="menuitem" id="sidebar-markers-hideSelected">Hide</li>
+            <li role="menuitem" id="sidebar-markers-copySelected">Copy</li>
+            <li role="menuitem" id="sidebar-markers-moveSelected">Move</li>
+            <li role="menuitem" id="sidebar-markers-deleteSelected">Delete</li>
+          </ul>
+        </div>
+      </div>
+      <div class="section-content">
+        <div id="markersSearchInputWrapper">
+          <input type="text" id="markersSearchInput" placeholder="Search markers..." />
+          <div class="clear-markers-search-text-btn" data-for="markersSearchInput">
+            <svg width="14" height="14" viewBox="0 0 0.32 0.32">
+              <path fill-rule="evenodd" d="M.16.32a.16.16 0 1 0 0-.32.16.16 0 0 0 0 .32M.086.086a.02.02 0 0 1 .028 0L.16.132.206.086a.02.02 0 1 1 .028.028L.188.16l.046.046a.02.02 0 0 1-.028.028L.16.188.114.234A.02.02 0 0 1 .086.206L.132.16.086.114a.02.02 0 0 1 0-.028"/>
+            </svg>
+          </div>
+        </div>
+        <div class="listingFilter">
+          <div class="listingFilter-selected">
+            <span class="listingFilter-text">All Listings</span>
+            <svg width="24" height="24" viewBox="-0.195 0 0.96 0.96" xmlns="http://www.w3.org/2000/svg">
+              <path d="M.564.342.327.639C.305.666.27.666.248.639L.011.342C-.011.314 0 .292.034.292H.54c.036 0 .046.022.023.05"/>
+            </svg>
+          </div>
+          <ul class="listingFilter-list"></ul>
+        </div>
+        <div class="subsetFilter">
+          <div class="subsetFilter-selected">
+            <span class="subsetFilter-text">All Subsets</span>
+            <svg width="24" height="24" viewBox="-0.195 0 0.96 0.96" xmlns="http://www.w3.org/2000/svg">
+              <path d="M.564.342.327.639C.305.666.27.666.248.639L.011.342C-.011.314 0 .292.034.292H.54c.036 0 .046.022.023.05"/>
+            </svg>
+          </div>
+          <ul class="subsetFilter-list"></ul>
+        </div>
+
+        <div id="markerList"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Toggle handle outside sidebar -->
+  <div id="sidebar-toggle">&#x25C0;</div>
+
+    <!-- Top search bar floats over map -->
+    <div id="topSearchBar">
+      <!-- Gear icon + search input + clear button -->
+      <div class="search-input-wrapper">
+        <button id="optionsToggle" data-tip="Search options" class="options-toggle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 10.24 10.24" xml:space="preserve">
+            <path d="M9.92 5.88a.347.347 0 0 0 .32-.346v-.828a.347.347 0 0 0-.32-.346l-1.097-.086a.18.18 0 0 1-.157-.114l-.361-.87a.18.18 0 0 1 .03-.191l.715-.836a.347.347 0 0 0-.018-.471l-.585-.585a.347.347 0 0 0-.471-.018l-.836.715a.19.19 0 0 1-.191.03l-.871-.361a.19.19 0 0 1-.114-.157L5.879.32A.345.345 0 0 0 5.534 0h-.828a.347.347 0 0 0-.346.32l-.086 1.096a.19.19 0 0 1-.114.157l-.871.361a.19.19 0 0 1-.191-.03l-.836-.715a.347.347 0 0 0-.471.018l-.585.585a.347.347 0 0 0-.018.471l.715.836a.19.19 0 0 1 .03.191l-.361.87a.18.18 0 0 1-.156.114L.32 4.36a.347.347 0 0 0-.32.346v.827c0 .181.139.332.32.346l1.097.085c.069.006.13.05.156.114l.361.87a.19.19 0 0 1-.03.191l-.715.836a.347.347 0 0 0 .018.471l.585.585a.347.347 0 0 0 .471.018l.836-.715a.19.19 0 0 1 .191-.03l.871.361a.19.19 0 0 1 .114.157l.086 1.096c.014.181.165.32.346.32h.828c.181 0 .332-.14.346-.32l.085-1.096a.19.19 0 0 1 .114-.157l.871-.361a.19.19 0 0 1 .191.03l.836.715c.138.118.343.11.471-.018l.585-.585a.347.347 0 0 0 .018-.471l-.715-.836a.19.19 0 0 1-.03-.191l.361-.87a.19.19 0 0 1 .157-.114zm-4.8.971a1.72 1.72 0 0 1-1.224-.507 1.72 1.72 0 0 1-.507-1.224c0-.462.18-.897.507-1.223A1.72 1.72 0 0 1 5.12 3.39c.463 0 .897.18 1.224.507s.507.761.507 1.223-.18.897-.507 1.224a1.72 1.72 0 0 1-1.224.507"/>
+          </svg>
+        </button>
+        <input type="text" id="poiInput" placeholder="Search map..." />
+        <div id="clearPOIButton" data-tip="Clear search" aria-label="Clear search">
+          <svg width="14" height="14" viewBox="0 0 0.32 0.32" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" d="M.16.32a.16.16 0 1 0 0-.32.16.16 0 0 0 0 .32M.086.086a.02.02 0 0 1 .028 0L.16.132.206.086a.02.02 0 1 1 .028.028L.188.16l.046.046a.02.02 0 0 1-.028.028L.16.188.114.234A.02.02 0 0 1 .086.206L.132.16.086.114a.02.02 0 0 1 0-.028"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Search button -->
+      <button id="searchPOIButton" aria-label="Search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="10.5" cy="10.5" r="6.5"/>
+          <line x1="15.5" y1="15.5" x2="21" y2="21"/>
+        </svg>
+      </button>
+
+      <!-- Options menu (hidden by default, below search input) -->
+      <div class="options-menu">
+        <label>
+          <span>Restrict search to viewport:</span>
+          <select id="viewportSelect">
+            <option value="false" selected>Disabled</option>
+            <option value="true">Enabled</option>
+          </select>
+        </label>
+        <label>
+          <span>Restrict search to country:</span>
+          <select id="countrySelect">
+            <option value="">Disabled</option>
+            <option value="fr">France</option>
+            <option value="de">Germany</option>
+            <option value="it">Italy</option>
+            <option value="pt" selected>Portugal</option>
+            <option value="es">Spain</option>
+          </select>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/leaflet.js"></script>
+  <script src="assets/Leaflet.PolylineMeasure.js"></script>
+  <script src="assets/leaflet-routing-machine.js"></script>
+  <script src="assets/swiper-bundle.min.js"></script>
+  <script src="assets/glightbox.js"></script>
+  <script src="frontend.js"></script>
+</body>
+</html>

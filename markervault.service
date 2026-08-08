@@ -1,0 +1,54 @@
+# MarkerVault backend service manifest (S-01/S-11/D-17).
+# Install: sudo cp markervault.service /etc/systemd/system/ && sudo systemctl daemon-reload
+# Mirrors the live service: dedicated user, gunicorn from the app venv with the
+# explicit single sync worker required by the in-memory Flask rate buckets, and
+# the current 30-second request timeout. Secret and runtime paths are injected through the
+# environment file only — never the unit or the repository. Runtime state lives
+# under /var/lib/markervault, outside the public root /var/www/markervault/public.
+#
+# Least-privilege invariant: the service user owns NOTHING it executes. The app
+# tree is root-owned (install.sh enforces this after every overlay copy), so both
+# gunicorn logs go to the journal (sudo journalctl -u markervault — the
+# correlation-id lines from generic client errors land there) and Python bytecode
+# caching is disabled instead of writing into the tree.
+# Runtime writes are confined to /var/lib/markervault. Media directories are
+# setgid markervault:www-data, so UMask=0027 creates private files that nginx can
+# still read without granting the service access to the host-wide www-data group.
+#
+# --no-control-socket (added with the gunicorn 26 upgrade, Stage 13.4): gunicorn 26
+# opens a Unix control socket at $HOME/.gunicorn/gunicorn.ctl by DEFAULT, letting
+# anyone who can act as the service user drive the master process. Mode 0600 keeps
+# that to the service user and root, but nothing here uses gunicornc, so the surface
+# is pure cost and is switched off. Leaving it enabled where $HOME is unwritable is
+# non-fatal — the app still serves, and the journal collects a recurring
+# "Control server error: [Errno 13] Permission denied" line.
+
+[Unit]
+Description=MarkerVault
+After=network-online.target nss-lookup.target
+Wants=network-online.target
+
+[Service]
+User=markervault
+Group=markervault
+WorkingDirectory=/var/www/markervault
+EnvironmentFile=/etc/markervault/markervault.env
+Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/var/www/markervault/venv/bin"
+Environment="PYTHONDONTWRITEBYTECODE=1"
+ExecStart=/var/www/markervault/venv/bin/gunicorn --workers 1 --worker-class sync --timeout 30 --bind 127.0.0.1:5000 backend:app --access-logfile - --error-logfile - --no-control-socket
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=true
+UMask=0027
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/markervault
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=multi-user.target

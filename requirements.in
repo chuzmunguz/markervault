@@ -1,0 +1,7 @@
+bcrypt
+defusedxml
+Flask
+gunicorn
+pillow
+PyJWT
+requests

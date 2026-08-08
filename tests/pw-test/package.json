@@ -1,0 +1,17 @@
+{
+  "name": "pw-test",
+  "version": "1.0.0",
+  "description": "MarkerVault browser regression suites",
+  "scripts": {
+    "test": "for s in matrix_test.mjs admin_groups_test.mjs admin_mgroups_test.mjs comanagers_test.mjs audit_test.mjs avatar_test.mjs localized_fixes_test.mjs refresh_coordination_test.mjs notification_history_test.mjs account_lifecycle_test.mjs; do node \"$s\" || exit 1; done"
+  },
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "playwright": "1.61.1"
+  }
+}

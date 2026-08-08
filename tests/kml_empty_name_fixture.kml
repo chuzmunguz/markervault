@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name></name>
+    <Folder>
+      <name></name>
+      <Placemark>
+        <name></name>
+        <Point><coordinates>-9.1393,38.7223,0</coordinates></Point>
+      </Placemark>
+      <Placemark>
+        <name>Marco Valido</name>
+        <Point><coordinates>-9.1355,38.7139,0</coordinates></Point>
+      </Placemark>
+    </Folder>
+    <Folder>
+      <name>Zona Sul</name>
+      <Placemark>
+        <name>Sem Local</name>
+        <ExtendedData><Data name="Local"><value></value></Data></ExtendedData>
+        <Point><coordinates>-9.1500,38.7050,0</coordinates></Point>
+      </Placemark>
+      <Placemark>
+        <name>Com Local</name>
+        <ExtendedData><Data name="Local"><value>Alfama</value></Data></ExtendedData>
+        <Point><coordinates>-9.1300,38.7120,0</coordinates></Point>
+      </Placemark>
+    </Folder>
+  </Document>
+</kml>

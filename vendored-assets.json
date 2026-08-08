@@ -1,0 +1,73 @@
+{
+  "schema_version": 2,
+  "advisory_review_date": "2026-07-25",
+  "next_advisory_review_date": "2026-10-25",
+  "advisory_review_method": "OSV api.osv.dev /v1/querybatch over every vendored version (npm ecosystem; the Leaflet.PolylineMeasure pin queried by commit) plus registry.npmjs.org for the newest published release of each package. The Stage 4 audit recorded OSV as proxy-blocked; it is reachable from this container and that limitation is closed.",
+  "libraries": [
+    {
+      "name": "Leaflet",
+      "version": "1.9.4",
+      "upstream": "https://github.com/Leaflet/Leaflet",
+      "source": "https://registry.npmjs.org/leaflet/-/leaflet-1.9.4.tgz",
+      "license": "BSD-2-Clause",
+      "advisory_status": "OSV reports no vulnerability for leaflet 1.9.4 in the npm ecosystem. CVE-2025-69993 exists only as a GIT/CPE range whose newest event is last_affected, not fixed: no fixed release exists anywhere in the 1.x line, and 1.9.4 is still the newest non-prerelease on npm (only 2.0.0-alpha.1 is above it). Owner decision 2026-07-25: stay on 1.9.4, keeping the mitigation that MarkerVault popup call sites pass DOM nodes rather than raw user strings. Re-check for a fixed 1.x release at the next advisory review; 2.x is ESM-only with no global L and breaks this plugin set, so any migration is its own planned stage.",
+      "files": {
+        "assets/leaflet.js": "db49d009c841f5ca34a888c96511ae936fd9f5533e90d8b2c4d57596f4e5641a",
+        "assets/leaflet.css": "a7837102824184820dfa198d1ebcd109ff6d0ff9a2672a074b9a1b4d147d04c6",
+        "assets/images/layers-2x.png": "066daca850d8ffbef007af00b06eac0015728dee279c51f3cb6c716df7c42edf",
+        "assets/images/layers.png": "1dbbe9d028e292f36fcba8f8b3a28d5e8932754fc2215b9ac69e4cdecf5107c6",
+        "assets/images/marker-icon-2x.png": "00179c4c1ee830d3a108412ae0d294f55776cfeb085c60129a39aa6fc4ae2528",
+        "assets/images/marker-icon.png": "574c3a5cca85f4114085b6841596d62f00d7c892c7b03f28cbfa301deb1dc437",
+        "assets/images/marker-shadow.png": "264f5c640339f042dd729062cfc04c17f8ea0f29882b538e3848ed8f10edb4da"
+      }
+    },
+    {
+      "name": "Leaflet.PolylineMeasure",
+      "version": "git-9908e5a2cbd2753c335ac758f3559ba9da6f99e9",
+      "upstream": "https://github.com/ppete2/Leaflet.PolylineMeasure",
+      "source": "https://github.com/ppete2/Leaflet.PolylineMeasure/tree/9908e5a2cbd2753c335ac758f3559ba9da6f99e9",
+      "license": "BSD-2-Clause",
+      "advisory_status": "OSV reports no vulnerability for commit 9908e5a2cbd2753c335ac758f3559ba9da6f99e9. The pin equals upstream HEAD (2023-11-07); the published npm release leaflet.polylinemeasure@3.0.0 is older (2021-06-21), so the git pin remains the newest available source and no upgrade exists.",
+      "files": {
+        "assets/Leaflet.PolylineMeasure.js": "1db066be82becca1344d8c0e0a3dba8cef1edca9ed4ecbf8f1e2260e082d0ad5",
+        "assets/Leaflet.PolylineMeasure.css": "cbdf836cd39066858f7cca5c3c3bc11bc09812a9b54aacfbbad5dfae3b3f0995"
+      }
+    },
+    {
+      "name": "Leaflet Routing Machine",
+      "version": "3.2.12",
+      "upstream": "https://github.com/perliedman/leaflet-routing-machine",
+      "source": "https://registry.npmjs.org/leaflet-routing-machine/-/leaflet-routing-machine-3.2.12.tgz",
+      "license": "ISC",
+      "advisory_status": "OSV reports no vulnerability for leaflet-routing-machine 3.2.12, which is also the newest published release (2018-09-28). No upgrade exists.",
+      "files": {
+        "assets/leaflet-routing-machine.js": "5be82043430886d1b92da52b053b51a941474f49bd3274d526a7a3dcad8fcf60",
+        "assets/leaflet-routing-machine.css": "72edc47b201b761ec5679f17e3ea10cf6837d13c3f53edd4b6a9abd444ce0ea4"
+      }
+    },
+    {
+      "name": "Swiper",
+      "version": "12.2.0",
+      "upstream": "https://github.com/nolimits4web/Swiper",
+      "source": "https://registry.npmjs.org/swiper/-/swiper-12.2.0.tgz",
+      "license": "MIT",
+      "advisory_status": "PARTIALLY MITIGATED, gadget retained; NO FIXED UPSTREAM RELEASE IDENTIFIED as of 2026-07-26. Stage 13.1 upgraded 12.0.3 -> 12.2.0 for GHSA-hmx5-qpq5-p643 (CVE-2026-27212): extend() filtered __proto__/constructor/prototype through Array.prototype.indexOf, so polluting that method defeated the guard. 12.1.2 replaced indexOf with direct string comparisons and OSV reports 12.2.0 clean. THAT IS NOT THE WHOLE STORY: the direct comparisons are the callback to an equally overridable Array.prototype.filter, so replacing filter still defeats the guard. Executed against this exact bundle 2026-07-26 -- control blocked, filter-override bypass succeeded; reproduction tracked at tests/swiper_prototype_pollution_check.mjs. Reproduced independently against npm latest 14.0.6, so the deferred major would NOT resolve it. Upstream issue 8189 is open and current upstream master retains the pattern -- same posture as Leaflet 1.9.4 / CVE-2025-69993. Demonstrated prerequisites are prior tampering with Array.prototype.filter PLUS a crafted merge input; MarkerVault passes only fixed literal option objects and has no identified attacker-controlled path to that input, so application exploitability is UNCONFIRMED rather than proven absent. Re-run the tracked check at every Swiper upgrade. Owner decision 2026-07-25: the 14.0.6 major is deferred to a separately planned stage.",
+      "files": {
+        "assets/swiper-bundle.min.js": "1e313555b04cb9b5273b7a817158708a05f58e18f91d97a4239dab6f68d23c4a",
+        "assets/swiper-bundle.min.css": "95482d9f6501bcbcb3fb9309e776cf547d3553ed4dbb95c595223cf876277684"
+      }
+    },
+    {
+      "name": "GLightbox",
+      "version": "3.3.1",
+      "upstream": "https://github.com/biati-digital/glightbox",
+      "source": "https://registry.npmjs.org/glightbox/-/glightbox-3.3.1.tgz",
+      "license": "MIT",
+      "advisory_status": "OSV reports no vulnerability for glightbox 3.3.1, which is also the newest stable release (2025-01-21; only the 4.0.0-beta.8 prerelease is above it). No upgrade exists.",
+      "files": {
+        "assets/glightbox.js": "91d8c7ce3391bb981573e09a31ec85550ee40b0b99de55f540f76a9ef96c93d4",
+        "assets/glightbox.css": "f610e11d92a58d4b7962bc085bf2fb360f5008ed15edd13318ef5dbe00770267"
+      }
+    }
+  ]
+}

@@ -1,0 +1,4175 @@
+/* Apply the same font to everything */
+*,
+*::before,
+*::after {
+  font-family: inherit;  /* inherit from parent */
+}
+
+/* Apply the same scrollbars to everything */
+::-webkit-scrollbar {
+  width: 6px;   /* vertical scrollbar width */
+  height: 6px;  /* horizontal scrollbar height */
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Thumb */
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: #bbb;
+}
+
+/* ===================== Reset & base ===================== */
+html, body {
+  height: 100% !important;
+  margin: 0 !important;
+  font-family: "Segoe UI", "Roboto", Arial, sans-serif;
+  color: #333333;            /* dark text */
+}
+
+body {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  background-color: #f5f5f5; /* light background */
+}
+
+/* ===================== Map ===================== */
+#map {
+  flex: 1;
+  height: 100%;
+  position: relative; /* for absolute positioning of top search bar */
+  cursor: default; /* Normal arrow cursor on the map */
+  user-select: none;       /* Prevent text selection */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.leaflet-container {
+  font-family: "Segoe UI", "Roboto", Arial, sans-serif;
+}
+
+/* Optional: pointer cursor only for clickable map features (like markers) */
+.leaflet-interactive {
+  cursor: pointer;
+}
+
+
+/* ===================== Notifications ===================== */
+#notification-container {
+  position: fixed;
+  bottom: 30px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-end;
+  z-index: 9000;
+}
+
+#notification-container:not(:empty) {
+  padding: 0; /* optional: keep zero if you want */
+}
+
+/* Individual notifications */
+.notification {
+  max-width: 350px;
+  background: #333;
+  font-size: 18px;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  word-wrap: break-word;
+  white-space: normal;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  transform: translateX(100%);  /* start off-screen */
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Slide-in effect */
+.notification.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.progress-notif,
+.confirmation-notif {
+  width: 350px;
+}
+
+.progress-text {
+  text-align: center;
+}
+
+.progress-bar-container {
+  width: 100%;
+  background: #eee;
+  height: 6px;
+  border-radius: 3px;
+  margin-top: 4px;
+}
+
+.progress-bar {
+  width: 0%;
+  height: 100%;
+  background: #4caf50;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.notification-content {
+  display: flex;
+  align-items: center; /* vertically center buttons with text */
+  gap: 10px;           /* space between text and buttons */
+}
+
+.notification-text {
+  flex: 1;             /* text takes remaining space */
+}
+
+/* Buttons container */
+.notification-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.notification-buttons button {
+  text-align: center;  /* center the text inside */
+}
+
+/* Confirm button */
+.btn-confirm {
+  background: #4caf50;
+}
+
+/* Cancel button */
+.btn-cancel {
+  background: #f44336;
+}
+
+.btn-confirm,
+.btn-cancel {
+  color: #fff;
+  font-size: 16px;
+  border: none;
+  width: 52px;
+  padding: 5px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* ===================== Context Menu ===================== */
+#sidebarMapContextMenu,
+#sidebarMarkerContextMenu,
+#mapContextMenu,
+#storedMarkerContextMenu,
+#tempMarkerContextMenu,
+#searchMarkerContextMenu {
+  position: absolute;
+  display: none;
+  background: rgba(250,250,250,1);
+  color: #333;
+  padding: 6px 0;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  z-index: 8000;
+  min-width: 160px;
+  font-size: 15px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#sidebarMapContextMenu.visible,
+#sidebarMarkerContextMenu.visible,
+#mapContextMenu.visible,
+#storedMarkerContextMenu.visible,
+#tempMarkerContextMenu.visible,
+#searchMarkerContextMenu.visible {
+  opacity: 1;
+}
+
+#sidebarMapContextMenu .menu-item,
+#sidebarMarkerContextMenu .menu-item,
+#mapContextMenu .menu-item,
+#storedMarkerContextMenu .menu-item,
+#tempMarkerContextMenu .menu-item,
+#searchMarkerContextMenu .menu-item {
+  padding: 8px 14px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease;
+}
+
+#sidebarMapContextMenu .menu-item:hover,
+#sidebarMarkerContextMenu .menu-item:hover,
+#mapContextMenu .menu-item:hover,
+#storedMarkerContextMenu .menu-item:hover,
+#tempMarkerContextMenu .menu-item:hover,
+#searchMarkerContextMenu .menu-item:hover {
+  background: #eee;
+}
+
+.menu-separator {
+  border-top: 1px solid #ddd;
+  margin: 4px 0;
+  height: 0;
+  pointer-events: none;
+}
+
+#addMarkerOverlay {
+  pointer-events: auto;
+}
+
+
+#addMarkerOverlay.hidden {
+  pointer-events: none;
+}
+
+
+/* ===================== Tooltips ===================== */
+.tooltip {
+  position: fixed;
+  background: rgba(250,250,250,0.95);
+  color: #333;
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(0,0,0,0.1);
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  z-index: 10000;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.tooltip.show {
+  opacity: 1;
+}
+
+
+/* ===================== Measurement tool ===================== */
+.polyline-measure-tooltip {
+  background-color: rgba(250, 250, 250, 0.9);
+  color: #000;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+  height: 55px !important;
+  width: 55px !important;
+  line-height: normal;
+  z-index: 2000 !important;
+}
+
+
+/* ===================== Routing ===================== */
+.leaflet-routing-container {
+  display: none !important;
+  background: rgba(240, 240, 240, 1);
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  font-size: 14px;
+  color: #333;
+  padding: 10px;
+  /* Hug the content: as wide as the widest card/button, not LRM's fixed 320px. */
+  width: fit-content;
+  max-height: 70vh;
+  overflow: hidden;
+  flex-direction: column;
+}
+
+.leaflet-routing-container.show {
+  display: block !important;
+}
+
+/* Leaflet Routing Machine's own stylesheet (assets/leaflet-routing-machine.css)
+   has a max-width:640px rule that forces margin/padding to 0 and width/height to
+   100% !important. On a phone that strips the card's spacing, crams it into the
+   top-right corner over the search bar, and (with height:100% + overflow:hidden)
+   clips the alternatives. Restore the desktop card look here — higher specificity
+   (.show) beats LRM's single-class !important — and drop the panel below the top
+   search bar so the whole thing stays visible. Desktop (>640px) is untouched. */
+@media (max-width: 640px) {
+  .leaflet-routing-container.show {
+    margin: 10px 10px 0 0 !important;               /* top-right, like desktop */
+    padding: 10px !important;
+    width: fit-content !important;                  /* hug content, capped to viewport */
+    max-width: calc(100vw - 20px) !important;
+    height: auto !important;
+  }
+}
+
+.leaflet-routing-alternatives-container {
+  flex: 1;
+  overflow-y: auto;
+  /* No right padding here: the cards live inside this scroll wrapper while the
+     Close Route button is a sibling of it, so any inset here would push the cards'
+     right edge in by that much and misalign them with the button. */
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+/* Custom scrollbars */
+.leaflet-routing-alternatives-container::-webkit-scrollbar {
+  width: 6px;
+}
+.leaflet-routing-alternatives-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+/* Each alternative route block */
+.leaflet-routing-alt {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.10);
+  transition: background 0.25s ease, transform 0.15s ease;
+}
+
+/* Route summary title */
+.leaflet-routing-alt h2 {
+  margin: 0px;
+  margin-bottom: 4px;
+}
+
+.leaflet-routing-alt table tr {
+  border-bottom: 1px dashed #ddd;
+  border-top: 1px dashed #ddd;
+}
+
+.leaflet-routing-alt.leaflet-routing-alt-selected {
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 0 0 2px #6366f1;
+}
+
+/* Route summary distance and time */
+.leaflet-routing-alt h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0px;
+}
+
+/* Steps table — hidden unless PUBLIC_CONFIG.routingStepsVisible adds the class at boot. */
+.leaflet-routing-alt table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 4px;
+  display: none;
+}
+
+.leaflet-routing-container.routing-steps-visible .leaflet-routing-alt table {
+  display: table;
+}
+
+.leaflet-routing-alt table tr {
+  border-bottom: 1px dashed #e5e7eb;
+}
+
+.leaflet-routing-alt table td {
+  padding: 6px 0;
+  vertical-align: top;
+}
+
+.leaflet-routing-alt table td:nth-child(1) {
+  width: 26px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.leaflet-routing-alt table td:nth-child(2) {
+  color: #374151;
+}
+
+.leaflet-routing-alt.leaflet-routing-alt-selected table td:nth-child(2) {
+  color: #e0e7ff;
+}
+
+.routing-button-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 5px;
+}
+
+.close-route-btn {
+    width: auto;
+    height: 30px;
+    flex: 1;
+    padding: 6px 8px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: #4a90e2;
+    color: #fff;
+    cursor: pointer;
+    outline: none;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.close-route-btn:hover {
+    background-color: #357abd;
+}
+
+
+/* ===================== TOP SEARCH BAR ===================== */
+#topSearchBar {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 1);
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  display: flex;
+  flex-wrap: nowrap;      /* keep the input + Search button on one row (options menu is absolute) */
+  align-items: center;
+  z-index: 1000;
+  width: 320px;
+  transition: transform 0.3s ease;
+  opacity: 1;
+}
+
+/* Narrow phones: shrink the search bar by 100px so it isn't cramped. */
+@media (max-width: 499px) {
+  #topSearchBar {
+    width: 220px;
+  }
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;       /* use flex instead of inline-block */
+  flex-grow: 1;        /* take remaining space */
+  gap: 0;              /* optional */
+}
+
+/* Inputs, selects, and buttons inside topSearchBar */
+#topSearchBar button {
+  padding: 2px 8px;
+  font-size: 14px;
+}
+
+#topSearchBar button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+#topSearchBar button:hover {
+  background-color: #357ABD;
+}
+
+/* === Search input field === */
+#poiInput {
+  flex: 1 1 auto;              /* prevents unexpected growth */
+  box-sizing: border-box;       /* padding stays inside total width */
+  padding-left: 34px;           /* space for gear/options button */
+  padding-right: 32px;          /* space for clear button */
+  min-width: 0;                 /* crucial in flex layouts to prevent overflow */
+  height: 26px;
+  font-size: 14px;
+}
+
+/* Clear button absolutely positioned inside wrapper */
+#clearPOIButton {
+  position: absolute;
+  right: 6px;
+  top: 0;
+  bottom: 0;
+  margin: auto 0;
+  height: 20px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+#clearPOIButton svg {
+  transition: transform 0.35s cubic-bezier(0.2, 0, 0.2, 1),
+              opacity 0.35s cubic-bezier(0.2, 0, 0.2, 1),
+              fill 0.35s cubic-bezier(0.2, 0, 0.2, 1);
+  transform-origin: center;
+  fill: #999;
+}
+
+#clearPOIButton:hover svg {
+  transform: scale(1.25);
+  opacity: 0.85;
+  fill: #ff3b3b; /* optional */
+}
+
+#searchPOIButton {
+  margin-left: 8px !important;
+  height: 26px;                 /* match #poiInput height */
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.3s ease !important;
+}
+
+#searchPOIButton.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+
+/* === Options dot menu on the left === */
+.options-toggle {
+  position: absolute;
+  left: 6px;                 /* inside input padding */
+  top: 0;
+  bottom: 0;
+  margin: auto 0;            /* vertically center */
+  height: 24px;              /* match input height */
+  width: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none !important;
+  border: none;
+  cursor: pointer;
+  padding: 0 !important;
+}
+
+/* Transition for smooth rotation */
+.options-toggle svg {
+  transition: transform 0.3s ease;
+  transform-origin: center;
+  fill: #222;
+}
+
+/* Rotate the gear when the panel is open */
+#topSearchBar.show-options .options-toggle svg {
+  transform: rotate(90deg);
+}
+
+/* Options menu appears below the search field */
+.options-menu {
+  position: absolute;
+  top: calc(100% + 8px); /* below the search field */
+  left: 50%;             /* centered under topSearchBar, which is itself centered */
+  background: white;
+  border-radius: 10px;
+  padding: 9px;
+  width: 320px;
+  max-width: calc(100vw - 40px); /* never overflow narrow phone viewports */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  flex-direction: column;
+  gap: 6px;
+  z-index: 1000;
+
+  /* Animate slide down */
+  transform: translate(-50%, -10px);
+  opacity: 0;
+  pointer-events: none;       /* prevents interaction when hidden */
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Show menu when topSearchBar has class .show-options */
+#topSearchBar.show-options .options-menu {
+  transform: translate(-50%, 0);
+  opacity: 1;
+  pointer-events: auto;       /* allow interaction */
+}
+
+.options-menu label {
+  display: flex;
+  justify-content: space-between; /* text on left, select on right */
+  align-items: center;
+  gap: 8px;                      /* space between text and select */
+  font-size: 1.2em;
+  font-weight: 500;
+  margin-bottom: 6px;            /* spacing between labels */
+}
+
+.options-menu select {
+  flex-shrink: 0;                /* prevent select from shrinking */
+  font-size: 14px;
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  width: 120px;
+}
+
+
+/* ===================== Sidebar ===================== */
+#sidebar {
+  user-select: none; /* prevent selection everywhere by default */
+}
+
+#sidebar input[type="text"],
+#sidebar input[type="number"],
+#sidebar select {
+  user-select: text; /* allow text selection in inputs */
+}
+
+#sidebar {
+  position: absolute;
+  top: 10px;
+  left: 0px;
+  bottom: 10px;
+  width: 350px;
+  padding: 12px;
+  border-radius: 14px;
+  box-sizing: border-box;
+  background: rgba(240, 240, 240, 0.95);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  font-size: 14px;
+  color: #333;
+  display: block;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  z-index: 1000;
+  transition: transform 0.3s ease;
+  scrollbar-width: none;
+}
+
+/* Sidebar scrollbar personalization */
+/*#sidebar {
+  scrollbar-gutter: stable;
+  padding-right: 2px;
+}
+
+#sidebar::-webkit-scrollbar {
+  width: 10px;
+}
+
+#sidebar::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 14px;
+  margin: 4px;
+}
+
+#sidebar::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.3);
+  border-radius: 14px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}*/
+
+/* Collapsed state */
+#sidebar.collapsed {
+  transform: translateX(-100%);
+}
+
+#sidebar-toggle {
+  position: absolute;
+  top: 50%;
+  left: 0px;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 80px;
+  background-color: #4a90e2;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 12px 12px 0;
+  z-index: 1100;
+  font-weight: bold;
+  user-select: none;
+  transition: left 0.3s ease, background-color 0.2s ease;
+}
+
+#sidebar-toggle:hover {
+  background-color: #357ABD;
+}
+
+#sidebar.collapsed + #sidebar-toggle {
+  left: 0;
+}
+
+/* Inputs and buttons inside sidebar */
+#sidebar input[type="text"],
+#sidebar input[type="number"],
+#sidebar button {
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 14px;
+  outline: none;
+  color: #222;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+#sidebar input[type="text"],
+#sidebar input[type="number"] {
+  padding-right: 32px;
+}
+
+#sidebar input[type="text"]:focus,
+#sidebar input[type="number"]:focus {
+  border-color: #4a90e2;
+}
+
+.sidebar::-webkit-scrollbar {
+  display: none;              /* Chrome/Safari */
+}
+
+
+.inputs-wrapper {
+  display: flex;           /* horizontal layout */
+  align-items: center;     /* vertically center button */
+  gap: 8px;                /* spacing between inputs and button */
+  padding-top: 8px;
+}
+
+.inputs-column {
+  display: flex;
+  flex-direction: column;  /* stack inputs */
+  gap: 5px;
+  flex: 1 1 auto;          /* allow column to grow and fill available space */
+}
+
+.inputs-column input {
+  width: 100%;             /* fill the column width */
+  height: 36px;
+  box-sizing: border-box;
+}
+
+#invert-route-btn {
+  width: 36px;             /* fixed square button */
+  flex-shrink: 0;          /* don’t shrink */
+  background: rgba(245, 245, 245, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 18px;
+  opacity: 1;
+  transition: background-color 0.2s ease, opacity 0.3s ease !important;
+}
+
+#invert-route-btn:hover {
+  background-color: #eee;
+}
+
+#invert-route-btn.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.route-input-wrapper {
+    display: flex;
+    align-items: center;      /* vertically center flag and input */
+    width: 100%;
+    gap: 8px;                 /* space between flag and input */
+    position: relative;       /* needed for clear button */
+}
+
+.route-input-wrapper input {
+    flex: 1;                  /* fill remaining space */
+    height: 36px;
+    box-sizing: border-box;
+}
+
+.route-input-svg {
+    padding-right: 10px;
+}
+
+#generate-route-btn {
+    background-color: #4a90e2;
+    color: #fff !important;
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    height: 36px;
+    margin-top: 15px !important;
+    margin-bottom: 8px !important;
+    opacity: 1;
+    transition: opacity 0.3s ease !important;
+}
+
+#generate-route-btn:hover {
+  background-color: #357abd;
+}
+
+#generate-route-btn.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.clear-waypoint-text-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    display: none;            /* show only when input has text */
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.clear-waypoint-text-btn svg {
+  transition: transform 0.35s cubic-bezier(0.2, 0, 0.2, 1),
+              opacity 0.35s cubic-bezier(0.2, 0, 0.2, 1),
+              fill 0.35s cubic-bezier(0.2, 0, 0.2, 1);
+  transform-origin: center;
+  fill: #999;
+}
+
+.clear-waypoint-text-btn:hover svg {
+  transform: scale(1.25);
+  opacity: 0.85;
+  fill: #ff3b3b; /* optional */
+}
+
+
+
+/* Left-floating Leaflet controls */
+.leaflet-top.leaflet-left,
+.leaflet-bottom.leaflet-left {
+  left: 0px;
+  transition: left 0.3s ease;
+}
+
+.leaflet-control {
+  border-radius: 6px;
+  border: none !important;
+  opacity: 1
+}
+
+/* Fade the corner control clusters out when the sidebar hides them on narrow screens
+   (the .controls-hidden class is toggled in updateLeafletControls). visibility flips only
+   after the fade so the hidden controls stop catching taps behind the sidebar. */
+.leaflet-top.leaflet-left,
+.leaflet-bottom.leaflet-left,
+.leaflet-top.leaflet-right {
+  transition: left 0.3s ease, opacity 0.3s ease, visibility 0s;
+}
+.leaflet-top.leaflet-left.controls-hidden,
+.leaflet-bottom.leaflet-left.controls-hidden,
+.leaflet-top.leaflet-right.controls-hidden {
+  opacity: 0;
+  visibility: hidden;
+  transition: left 0.3s ease, opacity 0.3s ease, visibility 0s 0.3s;
+}
+
+
+.leaflet-control-scale {
+  bottom: 5px;
+  margin-left: 10px !important;
+  border-radius: 6px;
+  border: none !important;
+}
+
+.leaflet-control-scale-line {
+  background: rgba(255, 255, 255, 1);
+}
+
+.leaflet-control-layers {
+  border: none !important;
+  border-radius: 6px;
+  margin-bottom: 17px !important;
+  margin-left: 10px !important;
+}
+
+.leaflet-control-layers-expanded {
+  width: 127px;
+}
+
+/* === User profile === */
+.sidebar-user-profile {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #4a90e2;
+  border-radius: 10px;
+  margin-bottom: 6px;
+}
+
+.user-profile-img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.user-profile-name {
+  font-weight: bold;
+  font-size: 24px;
+  color: #fff;
+  /* Long names must never widen the card/sidebar. The name is one .name-part per
+     name: a first+last pair wraps first-over-last when one line can't fit both,
+     and each part ellipsizes on its own when it alone overflows. */
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  line-height: 1.15;
+}
+.user-profile-name .name-part {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
+
+/* === Sidebar Sections (accordion/tabs) === */
+.sidebar-section {
+  position: relative;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  overflow: hidden;
+  margin-bottom: 6px;
+  overflow: visible;
+}
+
+/* Section toggle button */
+.section-toggle {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  height: 35px;
+  text-align: left;
+  padding: 10px 12px;
+  background: rgba(245, 245, 245, 0.95);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #222;
+  transition: background 0.2s ease;
+  gap: 10px;
+}
+
+.section-toggle:hover {
+  background-color: rgba(255, 255, 255, 1);
+}
+
+.section-title {
+  font-weight: 600;
+  font-size: 20px;
+}
+
+/* Collapsible content area */
+.section-content {
+  overflow: hidden;
+  height: 0;
+  background: rgba(245, 245, 245, 0.95);
+  transition: height 0.3s ease;
+  padding: 0 12px;
+  border-radius: 10px;
+}
+
+.map-item.selected {
+  background-color: #f0f8ff;
+  transition: background-color 0.3s ease;
+}
+
+
+
+/* ===================== Map and marker list dropdown menus ===================== */
+/* Container for the three-dots menu */
+.sidebar-maps-menu-container,
+.sidebar-markers-menu-container {
+  position: relative;
+  margin-left: auto;
+}
+
+/* Three-dot button */
+.sidebar-maps-menu-btn,
+.sidebar-markers-menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  width: 33px !important;
+  padding: 8px 12px !important;
+  cursor: pointer;
+  font-size: 20px !important;
+  opacity: 0;
+  pointer-events: none;
+  transition: background-color 0.3s ease, opacity 0.3s ease !important;
+}
+
+.sidebar-maps-menu-btn:hover,
+.sidebar-markers-menu-btn:hover {
+  background: rgba(245, 245, 245, 0.95);
+}
+
+/* show menu button when section is open */
+.sidebar-section.open .sidebar-maps-menu-btn,
+.sidebar-section.open .sidebar-markers-menu-btn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Dropdown menu styled like .options-menu */
+.sidebar-maps-menu-dropdown,
+.sidebar-markers-menu-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: rgba(250, 250, 250, 1);
+  border-radius: 10px;
+  padding: 9px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  list-style: none;
+  display: flex;             /* keep layout for flex animations */
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  z-index: 1000;
+  width: auto;
+  min-width: fit-content;
+  transform: translateY(-10px);
+  opacity: 0;
+  pointer-events: none;      /* prevent clicks when hidden */
+  visibility: hidden;        /* hide visually */
+  /* display:none while hidden so this absolutely-positioned popup doesn't inflate the
+     sidebar's scrollHeight (it would otherwise reserve scroll space below the last card,
+     making the sidebar scroll before it's actually full). */
+  display: none;
+  transition: transform 0.3s ease, opacity 0.3s ease, visibility 0s linear 0.3s;
+}
+
+/* When menu is opened */
+.sidebar-maps-menu-dropdown.show,
+.sidebar-markers-menu-dropdown.show {
+  opacity: 1;
+  pointer-events: auto;      /* allow clicks */
+  visibility: visible;
+  display: flex;
+  transition: transform 0.3s ease, opacity 0.3s ease; /* immediate visibility for show */
+}
+
+
+/* Menu items */
+.sidebar-maps-menu-dropdown li,
+.sidebar-markers-menu-dropdown li {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  background: transparent;
+  white-space: nowrap;     /* prevents text wrapping */
+}
+
+.sidebar-maps-menu-dropdown li:hover,
+.sidebar-markers-menu-dropdown li:hover {
+  background: #f2f2f2;
+}
+
+/* Separator same style vibe */
+.sidebar-maps-menu-dropdown li[role="separator"],
+.sidebar-markers-menu-dropdown li[role="separator"] {
+  border-top: 1px solid #ddd;
+  margin: 4px 0;
+  padding: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+
+/* ===================== Search, Listing and Subset Filters ===================== */
+#mapsSearchInputWrapper,
+#markersSearchInputWrapper {
+    display: flex;
+    align-items: center;      /* vertically center flag and input */
+    width: 100%;
+    gap: 8px;                 /* space between flag and input */
+    position: relative;       /* needed for clear button */
+    margin-top: 8px !important;
+}
+
+#mapsSearchInputWrapper input,
+#markersSearchInputWrapper input {
+    flex: 1;                  /* fill remaining space */
+    height: 36px;
+    box-sizing: border-box;
+}
+
+.clear-text-btn,
+.clear-maps-search-text-btn,
+.clear-markers-search-text-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.clear-text-btn svg,
+.clear-maps-search-text-btn svg,
+.clear-markers-search-text-btn svg {
+  transition: transform 0.35s cubic-bezier(0.2, 0, 0.2, 1),
+              opacity 0.35s cubic-bezier(0.2, 0, 0.2, 1),
+              fill 0.35s cubic-bezier(0.2, 0, 0.2, 1);
+  transform-origin: center;
+  fill: #999;
+}
+
+.clear-text-btn:hover svg,
+.clear-maps-search-text-btn:hover svg,
+.clear-markers-search-text-btn:hover svg {
+  transform: scale(1.25);
+  opacity: 0.85;
+  fill: #ff3b3b;
+}
+
+#mapsSearchInputWrapper {
+  margin-top: 8px !important;
+  margin-bottom: 8px !important;
+}
+
+.listingFilter {
+  position: relative;
+  width: 100%;
+  margin: 3px 0 3px 0;
+  box-sizing: border-box;
+  font-size: 14px;
+  outline: none;
+  border: none;
+  background: #fff;
+  border-radius: 8px;
+  margin-top: 6px;
+}
+
+.subsetFilter {
+  position: relative;
+  width: 100%;
+  margin: 0px;
+  box-sizing: border-box;
+  font-size: 14px;
+  outline: none;
+  border: none;
+  background: #fff;
+  border-radius: 8px;
+  margin-top: 7px;
+  margin-bottom: 8px;
+}
+
+/* Maps group filter — same look as the marker listing/subset filters */
+.mapsGroupFilter {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 14px;
+  background: #fff;
+  border-radius: 8px;
+  margin: 6px 0 8px 0;
+}
+.mapsGroupFilter-selected {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #fff;
+  color: #222;
+  user-select: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.mapsGroupFilter-selected svg {
+  width: 16px;
+  height: 16px;
+  margin-left: 8px;
+  pointer-events: none;
+  transition: transform 0.3s ease;
+  fill: #222;
+}
+.mapsGroupFilter.open .mapsGroupFilter-selected svg {
+  transform: rotate(180deg);
+}
+.mapsGroupFilter-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+.mapsGroupFilter-list {
+  background: #fff;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  list-style: none;
+  margin: 0;
+  padding: 0px 8px;
+  height: 0;
+  opacity: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: height 0.3s ease;
+}
+.mapsGroupFilter.open .mapsGroupFilter-list {
+  height: 70px;
+  padding: 0px 8px;
+  opacity: 1;
+  overflow-y: hidden;
+}
+.mapsGroupFilter-list li {
+  display: block;
+  min-width: 100%;
+  padding: 5px 5px 5px 8px;
+  box-sizing: border-box;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+.mapsGroupFilter-list li:hover {
+  background: #f2f2f2;
+}
+
+/* Selected box (clickable top bar) */
+.listingFilter-selected,
+.subsetFilter-selected {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #fff;
+  color: #222;
+  user-select: none;
+  display: flex;
+  justify-content: space-between; /* text left, arrow right */
+  align-items: center;            /* vertically center arrow */
+}
+
+/* Arrow inside selected box */
+.listingFilter-selected svg,
+.subsetFilter-selected svg {
+  width: 16px;
+  height: 16px;
+  margin-left: 8px;
+  pointer-events: none;
+  transition: transform 0.3s ease;
+  fill: #222;
+}
+
+/* Rotate arrow when dropdown is open */
+.listingFilter.open .listingFilter-selected svg,
+.subsetFilter.open .subsetFilter-selected svg {
+  transform: rotate(180deg);
+}
+
+
+.listingFilter-text,
+.subsetFilter-text {
+  white-space: nowrap;       /* Prevent wrapping */
+  overflow: hidden;          /* Hide overflow */
+  text-overflow: ellipsis;   /* Show "..." when text is too long */
+  flex: 1;                   /* Take remaining space next to arrow */
+}
+
+.listingFilter-list,
+.subsetFilter-list {
+  background: #fff;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  list-style: none;
+  margin: 0;
+  padding: 0px 8px;
+  height: 0;
+  opacity: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: height 0.3s ease;
+}
+
+.listingFilter.open .listingFilter-list,
+.subsetFilter.open .subsetFilter-list {
+  height: 200px;
+  padding-bottom: 6px;
+  opacity: 1;
+  overflow-y: scroll;       /* always show vertical scrollbar */
+  scrollbar-gutter: stable; /* reserve space for scrollbar (modern browsers) */
+}
+
+/* allow items to actually use the space */
+.listingFilter-list li:not(.filter-input),
+.subsetFilter-list li:not(.filter-input) {
+  flex-shrink: 0;
+}
+
+/* scroll ONLY the items, not the container */
+.listingFilter-list,
+.subsetFilter-list {
+  overflow-y: auto;
+}
+
+/* Dropdown items */
+.listingFilter-list li,
+.subsetFilter-list li {
+  display: block;
+  min-width: 100%;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 8px;
+  padding-right: 5px;
+  box-sizing: border-box;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.listingFilter-list li:hover,
+.subsetFilter-list li:hover {
+  background: #f2f2f2;
+}
+
+.filter-input {
+  padding: 0 !important;
+}
+
+.filter-input input {
+  width: 100%;
+  height: 38px !important;
+  padding: 10px 8px !important;
+  font-size: 14px;
+  box-sizing: border-box;
+  border: none !important;
+  border-bottom: 1px solid #ccc !important;
+  border-radius: 0px !important;
+}
+
+.filter-input input:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  border-bottom-color: #ccc !important;
+}
+
+
+
+/* ===================== Map and marker list items ===================== */
+.map-item,
+.marker-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: transform 0.1s, box-shadow 0.2s;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.map-item:hover,
+.marker-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.map-card,
+.marker-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  width: 100%;
+}
+
+.map-checkbox,
+.poi-checkbox {
+  margin-top: 4px;
+  accent-color: #4a90e2;
+}
+
+.map-toggle,
+.poi-toggle {
+  cursor: pointer;
+  width: 16px;
+  user-select: none;
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.map-name-collapsed,
+.poi-name-collapsed {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #333333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
+  line-height: 1.3;
+}
+
+.map-details,
+.poi-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 1;
+  min-width: 0;
+  width: 100%;
+  word-break: break-word;
+  overflow-wrap: normal;
+}
+
+.map-name,
+.poi-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #333333;
+  line-height: 1.3;
+}
+
+.map-created-wrapper,
+.poi-listing-wrapper {
+  display: flex;
+  flex-direction: column; /* stack listing and subset vertically */
+  justify-content: center; /* vertical centering */
+  gap: 4px;
+  margin-top: 3px;
+}
+
+.map-created-date,
+.poi-listing {
+  font-weight: 500;
+  font-size: 12px;
+  color: #555555;
+  line-height: 1.2;
+}
+
+.map-created-time,
+.poi-subset {
+  font-size: 12px;
+  color: #555555;
+  line-height: 1.1;
+}
+
+.poi-created-photo-count-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-top: 15px;
+}
+
+.poi-created {
+  font-size: 12px;
+  color: #666666;
+  line-height: 1;
+}
+
+.poi-photo-count {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  color: #666666;
+  gap: 2px;
+}
+
+.poi-photo-count svg {
+  height: 1em;       /* match text height */
+  width: auto;
+  display: block;    /* remove inline spacing issues */
+}
+
+.disabled-marker {
+  opacity: 0.6;
+}
+
+.disabled-marker .poi-name,
+.disabled-marker .poi-created,
+.disabled-marker .poi-listing,
+.disabled-marker .poi-subset {
+  color: #999999;
+}
+
+.map-actions-wrapper {
+  display: flex;
+  justify-content: space-between; /* date left, actions right */
+  align-items: center;            /* vertically center */
+  width: 100%;                    /* make it stretch full width */
+}
+
+/* Shared maps: stack date/time on top, then an owner+actions baseline row underneath. */
+.map-actions-wrapper.has-owner-row {
+  flex-direction: column;
+  align-items: stretch;
+}
+.map-owner-row {
+  display: flex;
+  justify-content: space-between; /* owner left, badge+buttons right */
+  align-items: center;            /* owner text and icons share one baseline */
+  width: 100%;
+  margin-top: 3px;
+}
+/* Inside the shared row the owner line has no extra top margin (the row provides spacing). */
+.map-owner-row .map-owner-line {
+  margin-top: 0;
+  min-width: 0;                /* allow it to shrink instead of forcing a wrap */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Keep the badge + buttons from being squeezed by a long owner name. */
+.map-owner-row .map-actions {
+  flex-shrink: 0;
+}
+
+.map-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;   /* vertically center the inline role badge with the buttons */
+  gap: 6px;
+}
+
+
+/* ===================== Marker Popup ===================== */
+.leaflet-popup-content-wrapper {
+  background: #fff;
+  border-radius: 14px;
+  padding: 0;
+  box-shadow: 0 6px 22px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
+  overflow: hidden;
+  width: 300px !important;
+}
+
+.leaflet-popup-tip {
+  background: #fff;
+}
+
+.popup-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: 0;          /* allow flex children to shrink */
+  width: 100%;
+}
+
+.popup-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.popup-info-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 8px;
+}
+
+.popup-listing {
+  font-weight: 500;
+  font-size: 14px;
+  color: #555555;
+  line-height: 1.2;
+  margin-bottom: 2px;
+}
+
+.popup-subset {
+  font-size: 13px;
+  color: #555555;
+  line-height: 1.1;
+}
+
+.popup-date {
+  color: #4b5563;
+  line-height: 1.2;
+  font-size: 13px;
+  margin-top: 15px;
+}
+
+.popup-name,
+.popup-listing,
+.popup-subset,
+.popup-date {
+  word-break: break-word;
+  overflow-wrap: normal;
+  min-width: 0;
+  text-align: center;
+}
+
+.popup-date svg {
+  transform: translateY(1px);
+}
+
+.inline-copy svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Buttons */
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: 0.18s ease;
+}
+
+.icon-btn svg {
+  display: block; /* ensures no inline spacing issues */
+  width: 18px;
+  height: 18px;
+  stroke: #4b5563;
+  stroke-width: 2;
+  transition: 0.18s ease;
+}
+
+.icon-btn:hover {
+  background: rgba(0,0,0,0.04);
+}
+
+/* Owned map with at least one collaborator: the share icon goes editor-green. */
+.icon-btn.has-collabs svg {
+  stroke: #16a34a;
+}
+
+.icon-btn:hover svg {
+  stroke: #111;
+  transform: scale(1.1);
+}
+
+.save-btn:hover svg {
+  stroke: #48a64c;
+}
+
+.icon-btn.danger:hover svg {
+  stroke: #e63946;
+}
+
+/* Action Bar */
+.popup-actions {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0,0,0,0.08);
+}
+
+.marker-item.popup-open {
+  background-color: #f0f8ff;
+  transition: background-color 0.3s ease;
+}
+
+.marker-item.popup-closing {
+  background-color: #fff; /* original color */
+  transition: background-color 0.3s ease;
+}
+
+a.leaflet-popup-close-button {
+  display: none;
+}
+
+
+/* ===================== OVERLAYS ===================== */
+
+#mapDetailsDescriptionCard {
+  height: 50px;
+}
+
+#mapDetailsNotesCard,
+#markerDetailsNotesCard {
+  height: 150px;
+}
+
+#mapDetailsDescriptionCard,
+#mapDetailsNotesCard,
+#markerDetailsNotesCard {
+  overflow-y: auto;
+  resize: none;
+}
+
+
+/* ===================== Add map overlay ===================== */
+#addMapDescription {
+  height: 100px;
+}
+
+/* ===================== Map details overlay ===================== */
+/* Header Section */
+.map-details-header {
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.map-details-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 4px;
+}
+
+.map-details-description {
+  color: #4b5563;
+  line-height: 1.2;
+  font-size: 14px;
+}
+
+.map-details-date {
+  color: #4b5563;
+  line-height: 1.2;
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+/* Description & Notes Card */
+.map-details-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  border: 1px solid #eee;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  animation: fadeUp 0.25s ease;
+}
+
+.map-details-notes {
+  font-size: 14px;
+  white-space: pre-wrap;
+  text-align: left;
+}
+
+.empty-notes {
+  font-size: 13px;
+  color: #999;
+  font-style: italic;
+}
+
+.map-details-title,
+.map-details-description,
+.map-details-date,
+.map-details-notes {
+  word-break: break-word;
+  overflow-wrap: normal;
+  min-width: 0;
+}
+
+
+
+
+
+/* ===================== Add marker overlay ===================== */
+/* Shared Overlay Styles */
+.overlay {
+  display: none;
+  opacity: 0;
+  pointer-events: none;
+  position: fixed;
+  z-index: 3000;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(4px);
+  transition: opacity 0.25s ease;
+}
+
+.overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Use shared overlay-content for both add/edit */
+.overlay-content {
+  background: #fff;
+  border-radius: 16px;
+  padding: 26px 24px;
+  width: 420px;
+  max-width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  animation: slideUp 0.25s ease;
+  scrollbar-width: none;
+}
+
+.overlay-content h3 {
+  text-align: center;
+  margin-bottom: 26px;
+  font-size: 20px;
+}
+
+/* Shared close (X) button, top-right of every overlay card. Absolute so it never
+   shifts the dialog's own layout; the 40x40 hit area keeps it tappable on mobile. */
+.overlay-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #6b7684;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
+  z-index: 5;
+}
+
+.overlay-close:hover {
+  background: #eef2f6;
+  color: #222;
+}
+
+.overlay-close:focus-visible {
+  outline: 2px solid #3a6ea5;
+  outline-offset: 2px;
+}
+
+.overlay-close svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+/* Separate form selectors to avoid ID conflicts */
+#addMapForm,
+#editMapForm,
+#addMarkerForm,
+#editMarkerForm {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="date"],
+input[type="datetime-local"],
+textarea {
+  width: 100%;
+  height: 38px;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+  color: #333333;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+input[type="date"]:focus,
+textarea:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52,152,219,0.2);
+}
+
+textarea {
+  height: 200px;
+  resize: none;
+}
+
+/* =========================
+   CUSTOM SELECT (DROPDOWN)
+   ========================= */
+.custom-select {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  width: 100%;
+  align-items: center;           /* vertical centering */
+  justify-content: space-between; /* space between text and button */
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 0;
+  padding-left: 12px;
+  height: 38px;                  /* fixed height for consistent centering */
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.custom-select .selected {
+  flex: 1;                       /* take remaining space */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Placeholder style */
+.custom-select .selected.placeholder {
+  color: #6c757d;
+}
+
+.custom-select .options {
+  list-style: none;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 12px;
+  padding-right: 8px;
+  max-height: 0px;
+  margin-top: 1px;
+  position: absolute;
+  box-sizing: border-box;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  opacity: 0;
+  overflow-x: auto;         /* horizontal scroll for long text */
+  overflow-y: auto;         /* vertical scroll if many items */
+  background: #fff;
+  border: 1px solid #ccc;
+  border-top: none;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  z-index: 10;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.options {
+  max-height: 200px;       /* or whatever your dropdown height is */
+  overflow-y: scroll;      /* always show vertical scrollbar */
+  scrollbar-gutter: stable; /* reserve space for scrollbar (modern browsers) */
+}
+
+.custom-select.open .options {
+  max-height: 250px;
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+}
+
+.custom-select .options li {
+  display: block;           /* stacked vertically */
+  min-width: 100%;          /* fill width of container */
+  box-sizing: border-box;
+  padding: 5px 8px;
+  cursor: pointer;
+}
+
+.custom-select .options li:hover {
+  background: #f0f4ff;
+}
+
+
+.filter-wrapper {
+  position: relative;
+}
+
+.filter-wrapper input {
+  padding-right: 24px; /* space for button */
+}
+
+.clear-text-btn {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+}
+
+
+
+/* CREATE LISTING BUTTON INSIDE SELECTOR */
+.custom-select .create-listing-btn,
+.custom-select .create-subset-btn {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 10px;
+  padding-right: 18px;
+}
+
+.custom-select .create-listing-btn svg,
+.custom-select .create-subset-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: #777;
+  transition: transform 0.18s ease, fill 0.18s ease;
+}
+
+.custom-select .create-listing-btn:hover svg,
+.custom-select .create-subset-btn:hover svg {
+  transform: scale(1.2);
+  fill: #444;
+}
+
+/* Add marker select wrapper */
+#addMarkerListingSelectWrapper,
+#addMarkerSubsetSelectWrapper,
+#editMarkerListingSelectWrapper,
+#editMarkerSubsetSelectWrapper,
+#moveMarkersMapSelectWrapper {
+  display: flex;
+  align-items: center;
+  height: 38px;
+  gap: 8px;
+}
+
+#addMarkerListingCustom,
+#addMarkerSubsetCustom,
+#editMarkerListingCustom,
+#editMarkerSubsetCustom,
+#moveMarkersMapCustom {
+  flex: 1;
+}
+
+/* Add marker input wrapper */
+#addMarkerListingInputWrapper,
+#addMarkerSubsetInputWrapper,
+#editMarkerListingInputWrapper,
+#editMarkerSubsetInputWrapper {
+  display: none;
+  align-items: center;
+  width: 100%;
+  height: 38px;
+  gap: 8px;
+  position: relative;
+}
+
+#addMarkerListingInput,
+#addMarkerSubsetInput,
+#editMarkerListingInput,
+#editMarkerSubsetInput {
+  flex: 1;
+  box-sizing: border-box;
+  padding-right: 60px; /* reserve space for buttons */
+}
+
+.save-button {
+  position: absolute;
+  right: 32px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.save-button svg {
+  width: 16px;
+  height: 16px;
+  padding: 4px;
+  border-radius: 6px;
+  stroke: #777;
+  stroke-width: 2;
+  transition: 0.18s ease;
+}
+
+.save-button:hover svg {
+  stroke: #48a64c;
+  transform: scale(1.25);
+}
+
+.cancel-button {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cancel-button svg {
+  padding: 4px;
+  border-radius: 6px;
+  fill: #999;
+  transition: transform 0.35s cubic-bezier(0.2, 0, 0.2, 1),
+              opacity 0.35s cubic-bezier(0.2, 0, 0.2, 1),
+              fill 0.35s cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+.cancel-button:hover svg {
+  transform: scale(1.25);
+  opacity: 0.85;
+  fill: #ff3b3b;
+}
+
+
+.coords-container {
+  display: flex;
+  gap: 10px;
+}
+.coords-container input {
+  flex: 1;
+}
+
+.photo-count {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  color: #333;
+  font-size: 14px;
+  text-align: center;
+  box-sizing: border-box;
+  pointer-events: none;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.buttons-container {
+  display: flex;
+  gap: 10px;
+}
+
+.upload-btn,
+.manage-photos-btn,
+button[type="submit"],
+#notifHistoryMarkSeenBtn {
+  flex: 1;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  color: #fff;
+}
+
+.upload-btn,
+.manage-photos-btn {
+  background-color: #2ebd71;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.upload-btn:hover,
+.manage-photos-btn:hover {
+  background-color: #27ae60;
+}
+
+button[type="submit"],
+#notifHistoryMarkSeenBtn {
+  background-color: #4a90e2;
+}
+
+button[type="submit"]:hover,
+#notifHistoryMarkSeenBtn:hover {
+  background-color: #357abd;
+}
+
+/* ===================== Marker details overlay ===================== */
+/* Header Section */
+.marker-details-header {
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.marker-details-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 4px;
+}
+
+.marker-details-listing {
+  color: #4b5563;
+  line-height: 1.2;
+  font-size: 14px;
+}
+
+.marker-details-subset {
+  color: #4b5563;
+  line-height: 1.2;
+  font-size: 12px;
+}
+
+.marker-details-date {
+  color: #4b5563;
+  line-height: 1.2;
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+/* Coordinates & Notes */
+.marker-details-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  border: 1px solid #eee;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  animation: fadeUp 0.25s ease;
+}
+
+.marker-details-coordinates {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.marker-details-notes {
+  font-size: 14px;
+  white-space: pre-wrap;
+  text-align: left;
+}
+
+.empty-notes,
+.empty-photos {
+  font-size: 13px;
+  color: #999;
+  font-style: italic;
+}
+
+.marker-details-title,
+.marker-details-listing,
+.marker-details-subset,
+.marker-details-date,
+.marker-details-notes {
+  word-break: break-word;
+  overflow-wrap: normal;
+  min-width: 0;
+}
+
+/* Swiper caroucel */
+
+.swiper {
+  width: 100%;
+  height: 320px;
+  margin-top: 0px !important;
+  background: transparent;
+}
+
+.swiper-wrapper {
+  align-items: center;
+}
+
+.swiper-lazy-preloader {
+  border: 4px solid #888;
+  border-top-color: transparent;
+}
+
+.swiper-slide {
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.swiper-slide a {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.swiper-slide img {
+  width: 100%;
+  height: 97%;
+  object-fit: cover;
+  border-radius: 8px;
+  user-select: none;
+  pointer-events: auto;
+  background: #eee;
+}
+
+.swiper-slide a img {
+  width: 100%;
+  height: 97%;
+  object-fit: cover;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+  width: 15px;
+  height: 15px;
+  padding: 7px;
+  border-radius: 50%;
+  margin-top: -14px !important;
+  background: rgba(250, 250, 250, 0.4);
+  color: #333;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transition: opacity 0.25s ease, background 0.25s ease, transform 0.2s ease;
+  pointer-events: none;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.swiper:hover .swiper-button-next,
+.swiper:hover .swiper-button-prev {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.swiper-button-next::after,
+.swiper-button-prev::after {
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+  transform: scale(1.2);
+}
+
+.swiper-button-next:focus,
+.swiper-button-prev:focus {
+  outline: none;
+}
+
+/*.swiper-pagination-fraction {
+  background: rgba(250, 250, 250, 0.4);
+}
+
+.swiper-pagination-progressbar {
+  top: auto !important;
+  bottom: 0;
+  height: 4px;
+}*/
+
+.glightbox-clean .gdesc-inner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #000;
+}
+
+.glightbox-clean .gslide-title {
+  color: #ccc;
+}
+
+
+
+/* ===================== Copy/Move markers overlay ===================== */
+#copyMarkersOverlay .overlay-content,
+#moveMarkersOverlay .overlay-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 300px;
+  max-height: 80vh;
+  padding: 24px;
+}
+
+/* Form becomes layout controller */
+#copyMarkersForm,
+#moveMarkersForm {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 16px;
+}
+
+/* Push button to bottom */
+#copyMarkersForm .buttons-container,
+#moveMarkersForm .buttons-container {
+  margin-top: auto;
+  display: flex;
+  justify-content: flex-end;
+}
+
+#copyMarkersForm .buttons-container button:disabled,
+#moveMarkersForm .buttons-container button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Custom select */
+#copyMarkersMapCustom,
+#moveMarkersMapCustom {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #fff;
+  align-items: stretch;   /* fill parent width */
+  width: 100%;            /* ensure parent stretches to wrapper */
+  box-sizing: border-box; /* include padding/border in width */
+  padding-left: 0;
+}
+
+#copyMarkersMapCustom .selected,
+#moveMarkersMapCustom .selected {
+  display: flex;            /* make it a flex container */
+  align-items: center;      /* vertically center the text */
+  padding: 0 10px;          /* horizontal padding only */
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;   /* include padding in width */
+}
+
+#copyMarkersMapCustom .options,
+#moveMarkersMapCustom .options {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  max-height: 0;              /* collapsed state */
+  overflow: hidden;           /* hide content while collapsed */
+  opacity: 0;
+  visibility: hidden;
+
+  transition:
+    max-height 0.3s ease,
+    opacity 0.3s ease;
+
+  border-top: 1px solid #ccc;
+}
+
+/* Open state */
+#copyMarkersMapCustom.open .options,
+#moveMarkersMapCustom.open .options {
+  max-height: 120px;          /* must be >= expected content height */
+  opacity: 1;
+  overflow-y: scroll;           /* enable scroll only when open */
+  visibility: visible;
+}
+
+
+
+/* ===================== Upload photos overlay ===================== */
+#busyOverlay {
+  display: none; /* hidden by default */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(10px);
+  z-index: 5000;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  color: white;
+  font-size: 20px;
+}
+
+/* Spinner styling */
+.spinner {
+  border: 8px solid rgba(255, 255, 255, 0.2);
+  border-top: 8px solid white;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1s linear infinite;
+}
+
+/* Spinner animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Optional text below spinner */
+.busy-text {
+  margin-top: 10px;
+  text-align: center;
+}
+
+
+/* ===================== Manage photos overlay ===================== */
+#managePhotosOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  transition: opacity 0.25s ease;
+  display: flex;
+  opacity: 0;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 20px 20px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 4000;
+  box-sizing: border-box;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+  pointer-events: none;
+}
+
+#managePhotosOverlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.manage-photos-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+#managePhotosOverlay p {
+  color: #bbb;
+  font-size: 1.1rem;
+  text-align: center;
+  font-style: italic;
+}
+
+#managePhotosOverlay::-webkit-scrollbar {
+  width: 0px;  /* Chrome, Safari, Edge */
+  background: transparent;
+}
+
+/* Gallery grid */
+#managePhotosGallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 216px));
+  gap: 20px;
+  row-gap: 30px;
+  padding: 20px;
+  width: max-content;
+  max-width: min(1200px, calc(100vw - 40px));
+  margin: 0 auto;
+  border-radius: 16px;
+  background: rgba(30, 30, 30, 0.95);
+  box-sizing: border-box;  /* essential */
+  justify-content: center; /* horizontal */
+  align-items: center;     /* vertical */
+}
+
+.gallery-item {
+  border-radius: 12px;
+  display: flex;
+  max-width: 216px;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 10px;
+  transition: transform 0.2s ease;
+}
+
+#managePhotosGallery,
+#managePhotosGallery * {
+  user-select: none;
+}
+
+/* Add photos card */
+.add-photo-card {
+  border: 2px dashed #555;
+  background: #1a1a1a;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+  min-height: 220px;
+  box-sizing: border-box;
+}
+
+.add-photo-card:hover {
+  border-color: #888;
+  background: #222;
+}
+
+.add-photo-icon {
+  font-size: 40px;
+  color: #bbb;
+  line-height: 1;
+}
+
+.add-photo-text {
+  margin-top: 8px;
+  color: #bbb;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Caption input */
+.photo-caption {
+  margin-top: 8px;
+  width: 100%;
+  padding: 6px 10px !important;
+  border-radius: 6px;
+  border: none !important;
+  outline: none;
+  font-size: 0.9rem;
+  background: #333;
+  color: #ccc !important;
+  box-sizing: border-box;
+  transition: background 0.2s ease;
+}
+
+.photo-caption:focus {
+  background: #444;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none;
+}
+
+.photo-caption {
+  user-select: text;
+}
+
+/* Buttons */
+.gallery-item .photo-buttons {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  width: 100%
+}
+
+.gallery-item .photo-buttons button {
+  flex: 1;
+  width: auto;
+  padding: 4px 0;
+  border: none;
+  border-radius: 6px;
+  background-color: #333;
+  color: #ccc;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  display: flex;           /* new */
+  justify-content: center; /* new */
+  align-items: center;     /* new */
+}
+
+.gallery-item .photo-buttons button:hover {
+    background-color: #444;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+
+/* ===============================================================
+   Authentication + admin panel
+   =============================================================== */
+.auth-switch {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 0.9em;
+  color: #555;
+}
+.auth-switch a {
+  color: #0077ff;
+  text-decoration: none;
+}
+.auth-switch a:hover {
+  text-decoration: underline;
+}
+.auth-hint {
+  margin-top: 10px;
+  font-size: 0.8em;
+  color: #777;
+  line-height: 1.4;
+}
+.auth-error {
+  margin-top: 10px;
+  color: #c0392b;
+  font-size: 0.9em;
+  min-height: 1.2em;
+  text-align: center;
+}
+.auth-message {
+  margin-top: 6px;
+  color: #1a7f37;
+  font-size: 0.9em;
+  text-align: center;
+}
+/* The one feedback primitive for every pre-session pane: a reserved slot between
+   the pane's content and its navigation links. The fixed height holds the longest
+   backend message (three lines here, four on narrow cards), so no interim, error,
+   or success message can ever move the fields, the links, or the card edge. */
+.auth-feedback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 54px;
+  margin: 6px 0 0;
+  box-sizing: border-box;
+  color: #526273;
+  font-size: 0.9em;
+  line-height: 1.25;
+  text-align: center;
+}
+.auth-feedback.success {
+  color: #1a7f37;
+}
+.auth-feedback.error {
+  color: #c0392b;
+}
+@media (max-width: 360px) {
+  .auth-feedback {
+    height: 72px;
+  }
+}
+.auth-reset-fields {
+  display: none;
+}
+.auth-reset-fields.active {
+  display: block;
+}
+.auth-reset-fields .auth-hint {
+  text-align: center;
+}
+
+/* ===============================================================
+   Full-page auth screen (opaque landing page; hides the app)
+   =============================================================== */
+#authScreen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 4000;
+  background: linear-gradient(135deg, #3a6ea5 0%, #274b73 100%);
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  overflow-y: auto;
+}
+#authScreen.active {
+  display: flex;
+}
+#limitScreen,
+#unsupportedScreen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 4000;
+  background: linear-gradient(135deg, #3a6ea5 0%, #274b73 100%);
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+#limitScreen.active,
+#unsupportedScreen.active {
+  display: flex;
+}
+#authScreen .auth-card,
+#limitScreen .auth-card,
+#unsupportedScreen .auth-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 30px 28px;
+  width: 420px;
+  max-width: 100%;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  box-sizing: border-box;
+}
+/* Full-page status screens served from inside the app, styled to match the standalone
+   404 page so a blocked user sees one consistent treatment either side of nginx. */
+.status-card {
+  text-align: center;
+}
+.status-card h1 {
+  margin: 0 0 6px;
+  font-size: 42px;
+  color: #274b73;
+}
+.status-card h2 {
+  margin: 0 0 14px;
+  font-size: 20px;
+  color: #274b73;
+}
+.status-card p {
+  margin: 0 0 22px;
+  color: #555;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.status-card button {
+  background: #3a6ea5;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 22px;
+  font-size: 15px;
+  cursor: pointer;
+}
+.status-card button:hover {
+  background: #274b73;
+}
+
+.auth-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 22px;
+}
+.auth-brand .auth-logo {
+  height: 44px;
+  width: auto;
+  max-width: 100%;
+  margin-bottom: 10px;
+}
+.auth-brand h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #274b73;
+}
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.auth-form .buttons-container {
+  margin-top: 4px;
+}
+.auth-form .buttons-container button {
+  width: 100%;
+}
+/* Two fields side by side; stacks on very narrow cards. */
+.auth-field-row {
+  display: flex;
+  gap: 12px;
+}
+.auth-field-row > * {
+  flex: 1;
+  min-width: 0;
+}
+.auth-date-label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.78em;
+  color: #777;
+  gap: 3px;
+}
+.auth-form select,
+.profile-form select {
+  height: 38px;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #fff;
+  color: #333;
+  box-sizing: border-box;
+}
+
+/* ===============================================================
+   Sidebar account menu (accordion)
+   =============================================================== */
+.sidebar-account {
+  margin-bottom: 6px;
+}
+.sidebar-user-profile {
+  cursor: pointer;
+  user-select: none;
+}
+.account-menu {
+  display: flex;
+  flex-direction: column;
+  background: #eef4fb;
+  border-radius: 0 0 10px 10px;
+  gap: 2px;
+  height: 0;
+  overflow: hidden;
+  padding: 0 4px;
+  transition: height 0.3s ease;
+}
+.account-menu-item {
+  display: flex;
+  position: relative;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  padding: 9px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #222;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.account-menu-item svg {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  fill: currentColor;
+}
+.account-menu-item:first-child {
+  margin-top: 4px;
+}
+.account-menu-item:last-child {
+  margin-bottom: 4px;
+}
+.account-menu-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+.account-menu-logout {
+  color: #c0392b;
+}
+.notif-history-badge {
+  min-width: 20px;
+  margin-left: auto;
+  padding: 2px 6px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: #c0392b;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+  white-space: nowrap;
+}
+.notif-history-badge[hidden] {
+  display: none;
+}
+
+/* ===============================================================
+   Notification history overlay
+   =============================================================== */
+.notif-history-panel {
+  width: 520px;
+  max-height: min(720px, 90vh);
+}
+.notif-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.notif-history-header h3 {
+  margin: 0;
+  text-align: left;
+}
+.notif-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 84px;
+  max-height: 56vh;
+  overflow-y: auto;
+}
+.notif-history-row {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #dde4ec;
+  border-left: 4px solid transparent;
+  border-radius: 10px;
+  background: #fff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.notif-history-row.success {
+  border-left-color: #3b8c5a;
+}
+.notif-history-row.warning {
+  border-left-color: #d39424;
+}
+.notif-history-row.error {
+  border-left-color: #c84a43;
+}
+.notif-history-row.unseen {
+  background: #eef6ff;
+}
+.notif-history-row:hover {
+  border-color: #9fb5ca;
+}
+.notif-history-row:focus-visible {
+  outline: 2px solid #3a6ea5;
+  outline-offset: 2px;
+}
+.notif-history-row:disabled {
+  cursor: wait;
+}
+.notif-history-row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+.notif-history-event {
+  color: #315f88;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.notif-history-row.success .notif-history-event {
+  color: #257047;
+}
+.notif-history-row.warning .notif-history-event {
+  color: #986814;
+}
+.notif-history-row.error .notif-history-event {
+  color: #a33a35;
+}
+.notif-history-time {
+  flex-shrink: 0;
+  color: #687584;
+  font-size: 12px;
+}
+.notif-history-message {
+  color: #263442;
+  font-size: 14px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.notif-history-empty {
+  margin: auto;
+  color: #687584;
+  text-align: center;
+}
+.notif-history-actions {
+  margin-top: 18px;
+}
+.notif-history-actions button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+@media (max-width: 560px) {
+  .notif-history-panel {
+    width: calc(100vw - 32px);
+    max-width: calc(100vw - 32px);
+    padding: 20px 18px;
+    box-sizing: border-box;
+  }
+  .notif-history-list {
+    max-height: 60vh;
+  }
+}
+
+/* ===============================================================
+   Profile overlay (view + edit)
+   =============================================================== */
+.profile-avatar-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.profile-avatar-preview {
+  width: 96px;
+  height: 96px;
+  box-sizing: border-box;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 1px solid #d8dce2;
+  background: #f2f4f7;
+}
+.profile-avatar-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.profile-avatar-upload-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 9px 16px;
+  background: #4a90e2;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.profile-avatar-upload-btn:hover {
+  background: #357abd;
+}
+.profile-avatar-upload-btn:disabled,
+.profile-avatar-remove-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.profile-avatar-remove-btn {
+  border: none;
+  padding: 0;
+  background: none;
+  color: #c0392b;
+  font-size: 0.85em;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.profile-avatar-remove-btn:hover {
+  color: #a5281c;
+}
+.profile-readonly {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #eee;
+}
+.profile-readonly > div {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #333;
+}
+.profile-ro-label {
+  color: #888;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+#profileRole {
+  text-transform: capitalize;
+}
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.profile-form .buttons-container {
+  margin-top: 4px;
+}
+.profile-feedback-slot {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 64px;
+  overflow-y: auto;
+}
+.profile-feedback-slot .auth-error,
+.profile-feedback-slot .auth-message {
+  min-height: 0;
+  margin: 0;
+  font-size: 0.76em;
+  line-height: 1.35;
+}
+.profile-feedback-slot .auth-error:empty,
+.profile-feedback-slot .auth-message:empty {
+  display: none;
+}
+.profile-email-field {
+  position: relative;
+}
+.profile-email-field input {
+  padding-right: 40px;
+}
+.profile-email-indicator {
+  position: absolute;
+  top: 50%;
+  right: 13px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 20px;
+  text-align: center;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.profile-email-indicator.verified {
+  background: #2f8a50;
+}
+.profile-email-indicator.unverified {
+  background: #c5851c;
+}
+.profile-email-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-height: 0;
+  margin: 0;
+  font-size: 0.78em;
+  text-align: center;
+}
+.profile-email-status:empty {
+  display: none;
+}
+.profile-email-warning {
+  margin: 0;
+  color: #986814;
+  font-size: inherit;
+  line-height: 1.35;
+}
+
+/* Admin master lists (users + groups). The list fills its column on the admin screen. */
+.admin-user-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  margin: 0;
+}
+/* Filter field above each master list; the list below keeps the column's full height. */
+.admin-list-filter {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+.admin-user-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 8px;
+  border-bottom: 1px solid #eee;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.admin-user-avatar,
+.collab-list-avatar {
+  flex: 0 0 auto;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid #d8dce2;
+  background: #f2f4f7;
+}
+.admin-user-avatar {
+  width: 40px;
+  height: 40px;
+}
+.collab-list-avatar {
+  width: 30px;
+  height: 30px;
+}
+.admin-user-row:hover {
+  background: #f5f7fa;
+}
+.admin-user-row.selected {
+  background: #eef4fb;
+}
+.admin-user-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.admin-user-name {
+  font-weight: 600;
+}
+.admin-user-realname {
+  font-size: 0.85em;
+  color: #555;
+}
+.admin-user-meta {
+  font-size: 0.8em;
+  color: #888;
+}
+.admin-user-actions {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+  align-items: center;
+}
+/* Row actions are icon buttons (reuse .icon-btn); nudge sizing for the compact row. */
+.admin-user-actions .icon-btn {
+  padding: 7px;
+}
+
+/* Create-user + reset-password overlays stack above the admin screen. */
+#createUserOverlay,
+#resetPwdOverlay {
+  z-index: 3100;
+}
+
+/* ===============================================================
+   Full-page admin screen (user + group management, master-detail)
+   =============================================================== */
+#adminScreen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  /* Below .overlay (3000): the create-user/reset-pwd/confirmation dialogs stack on top. */
+  z-index: 2500;
+  background: #eef1f5;
+  flex-direction: column;
+  padding: 18px 22px;
+  box-sizing: border-box;
+}
+#adminScreen.active {
+  display: flex;
+}
+.admin-screen-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.admin-screen-header h2 {
+  margin: 0;
+  font-size: 22px;
+  color: #274b73;
+}
+#adminBackBtn {
+  padding: 8px 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #fff;
+  color: #333;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+#adminBackBtn:hover {
+  background: #f2f2f2;
+}
+.admin-tabs {
+  display: flex;
+  gap: 6px;
+}
+.admin-tab {
+  padding: 9px 20px;
+  border: none;
+  border-radius: 10px 10px 0 0;
+  background: #dde3ea;
+  color: #555;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.admin-tab:hover {
+  background: #e7ecf2;
+}
+.admin-tab.active {
+  background: #fff;
+  color: #274b73;
+  font-weight: 600;
+}
+.admin-tab-panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: 14px;
+}
+.admin-master {
+  width: 340px;
+  flex-shrink: 0;
+  background: #fff;
+  border-radius: 0 12px 12px 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  box-sizing: border-box;
+}
+.admin-detail {
+  flex: 1;
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px 20px;
+  overflow-y: auto;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+.admin-audit-detail {
+  grid-column: 1 / -1;
+}
+
+.audit-filters {
+  display: grid;
+  grid-template-columns: minmax(135px, 0.75fr) minmax(135px, 0.75fr) minmax(175px, 1.1fr) minmax(220px, 1.5fr) auto;
+  gap: 10px;
+  align-items: end;
+  margin-bottom: 14px;
+  padding: 12px;
+  border: 1px solid #d8e0ea;
+  border-radius: 9px;
+  background: #f7f9fc;
+}
+
+.audit-filter-field {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  color: #526273;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.audit-filter-field input,
+.audit-filter-field select {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid #cbd5df;
+  border-radius: 6px;
+  padding: 8px 9px;
+  background: #fff;
+  color: #2f3d4c;
+  font-size: 13px;
+}
+
+.audit-filter-field input:focus,
+.audit-filter-field select:focus {
+  border-color: #6ea3d7;
+  outline: 2px solid #dcecfb;
+}
+
+.audit-filter-actions {
+  display: flex;
+  gap: 7px;
+}
+
+.audit-filters .audit-filter-apply,
+.audit-filter-clear {
+  border: 1px solid #b9c7d6;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.audit-filters .audit-filter-apply {
+  border-color: #4a90e2;
+  background: #4a90e2;
+  color: #fff;
+}
+
+.audit-filters .audit-filter-apply:hover {
+  background: #357abd;
+}
+
+.audit-filter-clear {
+  background: #fff;
+  color: #526273;
+}
+
+.audit-filter-clear:hover {
+  background: #edf2f7;
+}
+
+.audit-filter-error {
+  grid-column: 1 / -1;
+  min-height: 16px;
+  color: #b42318;
+  font-size: 12px;
+}
+
+.audit-list {
+  overflow: hidden;
+  border: 1px solid #d8e0ea;
+  border-radius: 9px;
+  background: #fff;
+  color: #334155;
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-size: 13px;
+}
+
+.audit-row {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e1e7ef;
+  background: #fff;
+}
+
+.audit-row:hover {
+  background: #f8fafc;
+}
+
+.audit-log-line {
+  display: grid;
+  grid-template-columns: max-content max-content minmax(0, 1fr);
+  gap: 8px;
+  align-items: baseline;
+  line-height: 1.55;
+}
+
+.audit-log-timestamp {
+  color: #6b7b8e;
+}
+
+.audit-log-action {
+  color: #27669e;
+  font-weight: 700;
+}
+
+.audit-row-heading {
+  color: #263746;
+  font-weight: 400;
+}
+
+.audit-record-details {
+  margin: 5px 0 0;
+  color: #66788a;
+}
+
+.audit-record-details summary {
+  width: max-content;
+  cursor: pointer;
+  color: #3978b5;
+  font-size: 12px;
+  user-select: none;
+}
+
+.audit-record-details summary:hover {
+  color: #255f96;
+}
+
+.audit-record-metadata {
+  display: grid;
+  gap: 2px;
+  margin: 7px 0 2px 18px;
+  padding: 7px 10px;
+  border-left: 2px solid #b9d2ea;
+  background: #f7f9fc;
+}
+
+.audit-record-line {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 8px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.audit-record-key {
+  color: #68798a;
+}
+
+.audit-record-value {
+  color: #334155;
+  white-space: pre-wrap;
+}
+
+.audit-list > .admin-detail-empty {
+  margin: 0;
+  padding: 18px;
+  color: #6b7b8e;
+}
+
+.audit-load-more {
+  display: block;
+  margin: 12px auto;
+  border: 1px solid #b7c6d6;
+  border-radius: 6px;
+  padding: 7px 14px;
+  background: #f4f7fa;
+  color: #315f88;
+  cursor: pointer;
+}
+
+.audit-load-more:hover {
+  background: #e7eff7;
+}
+
+@media (max-width: 800px) {
+  .audit-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .audit-filter-event,
+  .audit-filter-search,
+  .audit-filter-actions,
+  .audit-filter-error {
+    grid-column: 1 / -1;
+  }
+  .audit-log-line {
+    grid-template-columns: max-content minmax(0, 1fr);
+  }
+  .audit-log-message {
+    grid-column: 1 / -1;
+    padding-left: 2px;
+  }
+  .audit-record-line {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+.admin-master-footer {
+  margin-top: 12px;
+  flex-shrink: 0;
+}
+/* Same blue pill as the overlay submit buttons (it's type="button", so the
+   button[type="submit"] rule doesn't reach it). */
+#adminCreateUserBtn {
+  flex: 1;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  color: #fff;
+  background-color: #4a90e2;
+}
+#adminCreateUserBtn:hover {
+  background-color: #357abd;
+}
+.admin-group-create {
+  display: flex;
+  gap: 8px;
+}
+.admin-group-create input {
+  flex: 1;
+  min-width: 0;
+}
+.admin-group-create button {
+  flex: 0 0 auto;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #3a6ea5;
+  color: #fff;
+  cursor: pointer;
+}
+.admin-group-create button:hover {
+  background: #345f8e;
+}
+.admin-detail-empty {
+  color: #888;
+  margin: 6px 2px;
+}
+.admin-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #eee;
+}
+.admin-detail-title {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.admin-detail-name {
+  font-size: 18px;
+  font-weight: 600;
+}
+.admin-detail-realname {
+  font-size: 0.9em;
+  color: #555;
+}
+.admin-group-rename-input {
+  font-size: 16px;
+  padding: 4px 8px;
+}
+/* Inner detail-pane tabs (Details|Maps on users, Details|Members on groups) — smaller
+   cousins of the main Users/Groups strip; the active panel renders as a bordered card
+   so each section is visually separate. */
+.admin-detail-tabs {
+  display: flex;
+  gap: 4px;
+  margin-top: 12px;
+}
+.admin-detail-tab {
+  padding: 7px 16px;
+  border: 1px solid #dde3ea;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  background: #eef1f5;
+  color: #555;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.admin-detail-tab:hover {
+  background: #e7ecf2;
+}
+.admin-detail-tab.active {
+  background: #fff;
+  color: #274b73;
+  font-weight: 600;
+  border-color: #c9d2dd;
+}
+.admin-detail-panel {
+  border: 1px solid #c9d2dd;
+  border-radius: 0 10px 10px 10px;
+  padding: 12px 14px;
+  background: #fff;
+}
+/* Profile facts: label/value rows, like the profile overlay's read-only block */
+.admin-facts {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.admin-facts > div {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #333;
+  max-width: 420px;
+}
+.admin-fact-label {
+  color: #888;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.admin-maps-list {
+  color: #555;
+  font-size: 14px;
+}
+/* Each Maps subsection (Owned / Shared with this user) is its own card; the title
+   line is at least as big as the map names and clearly separated from the rows. */
+.admin-maps-card {
+  border: 1px solid #e3e7ec;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  background: #fff;
+}
+.admin-maps-card-title {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #5a6570;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e6eaef;
+}
+.admin-managers-section {
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 1px solid #e6eaef;
+}
+.admin-managers-title {
+  margin-bottom: 8px;
+  color: #5a6570;
+  font-size: 0.9em;
+  font-weight: 600;
+}
+.admin-manager-rows {
+  margin-bottom: 0;
+}
+.admin-manager-rows > div {
+  align-items: center;
+  min-height: 30px;
+}
+.admin-manager-rows .admin-delegation-box {
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.admin-maps-card .admin-map-row:last-child { border-bottom: none; }
+.admin-maps-empty {
+  margin: 2px 0 4px;
+  color: #888;
+  font-size: 0.9em;
+}
+.admin-map-row {
+  padding: 8px 2px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.admin-map-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.admin-map-head .icon-btn {
+  padding: 5px;
+  flex-shrink: 0;
+}
+.admin-map-name {
+  font-weight: 600;
+  color: #333;
+}
+.admin-map-meta {
+  font-size: 0.85em;
+  color: #888;
+  margin-top: 2px;
+}
+.admin-map-collabs {
+  margin-top: 4px;
+}
+/* One labeled chip row per kind (Groups:/Users:/Direct:); chips are colored by ROLE,
+   matching the sidebar map-role-badge tokens — green editor, gray viewer. */
+.collab-chip-row {
+  margin-top: 4px;
+}
+.collab-row-label {
+  font-size: 0.8em;
+  color: #888;
+  margin-right: 6px;
+}
+.collab-chip {
+  display: inline-block;
+  border-radius: 12px;
+  padding: 2px 10px;
+  font-size: 0.8em;
+  margin: 2px 4px 0 0;
+}
+.collab-chip.role-editor { background: #e3f3e8; color: #2b6b43; }
+.collab-chip.role-viewer { background: #eef0f2; color: #667; }
+/* Group member management (groups tab detail pane): two side-by-side action lists —
+   candidates with a + per row, current members with a × per row, a filter above each. */
+.admin-group-lists {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.admin-group-lists .filter-picker {
+  flex: 0 0 350px;
+  width: 350px;
+}
+.admin-group-list-label {
+  font-size: 0.8em;
+  font-weight: 600;
+  color: #5a6570;
+}
+.action-list-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 24px;
+  padding: 4px 6px 4px 10px;
+  font-size: 0.92em;
+  border-bottom: 1px solid #f2f2f2;
+}
+.action-list-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.action-list-btn {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 6px;
+  background: #eef0f2;
+  color: #445;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+.action-list-btn:hover { background: #dfe5ec; }
+.action-list-btn.danger:hover { background: #f6dedb; color: #c0392b; }
+/* "Managed by" selector in the user facts (super view: controls() delegation) */
+.admin-controller-select {
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 13px;
+  max-width: 220px;
+}
+/* Many-to-many delegation editor (a user's managing admins / a group's owners):
+   one chip per current grant, each with its own revoke button, plus an add picker */
+.admin-delegation-box {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.admin-delegation-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px 2px 10px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  background: #f7f7f7;
+  font-size: 13px;
+}
+.admin-delegation-remove {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 2px 4px;
+  color: #888;
+}
+.admin-delegation-remove:hover { color: #c0392b; }
+.admin-delegation-empty { color: #888; font-size: 13px; }
+/* "Owned by" row in the group detail pane (super view: owns_group delegation) */
+.admin-group-owner-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+  max-width: 420px;
+}
+.admin-group-owner-row select {
+  flex: 1;
+  min-width: 0;
+  max-width: 220px;
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 13px;
+}
+/* "group" tag next to a group collaborator's name in the share list */
+.collab-type-badge {
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: #e6f2e6;
+  color: #555;
+  font-size: 0.75em;
+  font-weight: 400;
+}
+/* Narrow screens: stack the master list above the detail pane */
+@media (max-width: 800px) {
+  .admin-tabs {
+    width: 100%;
+    overflow-x: auto;
+    flex-shrink: 0;
+  }
+  .admin-tab {
+    flex: 0 0 auto;
+  }
+  .admin-tab-panel {
+    flex-direction: column;
+  }
+  .admin-master {
+    width: auto;
+    max-height: 45%;
+  }
+}
+/* Role dropdown in the create form spans full width like the other fields. */
+#createUserForm > .auth-date-label {
+  width: 100%;
+}
+
+/* Profile account actions — Change Password + Delete account, side by side. */
+.profile-account-actions {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+.account-action-link {
+  background: none;
+  border: none;
+  color: #4a90e2;
+  font-size: 0.9em;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.account-action-link:hover {
+  color: #357abd;
+}
+.profile-email-resend {
+  padding: 0;
+  font-size: inherit;
+}
+.danger-link {
+  background: none;
+  border: none;
+  color: #c0392b;
+  font-size: 0.9em;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.danger-link:hover {
+  color: #a5281c;
+}
+/* Change-password + delete-account confirm overlays stack above the profile overlay. */
+#deleteAccountOverlay,
+#changePwdOverlay {
+  z-index: 3100;
+}
+.destructive-btn {
+  background-color: #c0392b !important;
+  color: #fff;
+}
+.destructive-btn:hover {
+  background-color: #a5281c !important;
+}
+
+
+/* ===============================================================
+   Map sharing panel + role badges
+   =============================================================== */
+.map-role-badge {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-size: 0.72em;
+  font-weight: 600;
+  text-transform: capitalize;
+  background: #e8eef7;
+  color: #40587a;
+}
+.map-role-badge.role-editor { background: #e3f3e8; color: #2b6b43; }
+.map-role-badge.role-viewer { background: #eef0f2; color: #667; }
+.map-role-badge.role-admin  { background: #f6ecdf; color: #8a5a1a; }
+
+/* Inline in the action row: no stacking margin, don't wrap, sit just before the buttons. */
+.map-actions .map-role-badge {
+  margin-top: 0;
+  margin-right: 2px;
+  white-space: nowrap;
+}
+
+.map-owner-line {
+  margin-top: 3px;
+  font-size: 0.78em;
+  color: #667;
+  font-style: italic;
+}
+
+.collab-add-row {
+  display: flex;
+  gap: 8px;
+  margin: 6px 0 12px;
+}
+.collab-add-row select {
+  flex: 0 0 auto;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+/* Filterable pick list (share overlay + group add-member): search field on top,
+   PERSISTENT scrollable result list below — same interaction as the sidebar marker
+   filters. Click a row to select it. */
+.filter-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+.filter-picker input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+.filter-picker-list {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  /* Fixed (not max-) height: the surrounding layout must not resize as results change. */
+  height: 400px;
+  overflow-y: auto;
+  background: #fff;
+}
+.filter-picker-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  cursor: pointer;
+  font-size: 0.92em;
+}
+.filter-picker-item:hover { background: #f0f4ff; }
+.filter-picker-item.selected {
+  background: #e3ecf7;
+  color: #274b73;
+  font-weight: 600;
+}
+.filter-picker-empty {
+  padding: 7px 10px;
+  color: #888;
+  font-style: italic;
+}
+#collabPickerBox { margin-bottom: 10px; }
+.collab-add-row button {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #0077ff;
+  color: #fff;
+  cursor: pointer;
+}
+/* Share overlay only: fixed overlay height, compact picker, Share button pushed
+   to the right edge of its row. border-box so the 600px is the RENDERED height —
+   .overlay-content is content-box by default and its 26px paddings made this 652. */
+#collabOverlay .overlay-content { height: 600px; box-sizing: border-box; }
+#collabOverlay .filter-picker-list { height: 200px; }
+#collabAddBtn { margin-left: auto; }
+.collab-list {
+  max-height: 45vh;
+  overflow-y: auto;
+}
+.collab-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 4px;
+  border-bottom: 1px solid #eee;
+}
+.collab-name { flex: 1; font-weight: 600; }
+.collab-role-select {
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+.collab-remove-btn {
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #f7f7f7;
+  cursor: pointer;
+  font-size: 0.82em;
+}
+.collab-remove-btn:hover { background: #eee; }
+.collab-empty { color: #888; font-size: 0.9em; padding: 8px 4px; }

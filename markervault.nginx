@@ -1,0 +1,308 @@
+# Shared rate-limit zones (http context). The Flask app also rate-limits, but those
+# buckets are per-worker and in-memory; these zones throttle at the edge before the
+# backend is reached. login/link/kml are enforced (pause-B baseline 2026-07-19:
+# no legitimate traffic approached them once KML status polling was scoped out of
+# the upload zone). mv_refresh_zone is enforced since Stage 10.1: the client
+# single-flight/cross-tab serialization caps legitimate use at one refresh per page
+# load per tab, and the burst below absorbs the pause-B measured reload-spam peak.
+limit_req_zone $binary_remote_addr zone=mv_login_zone:10m rate=3r/m;    # 1 request per 20s
+limit_req_zone $binary_remote_addr zone=mv_refresh_zone:10m rate=30r/m;
+limit_req_zone $binary_remote_addr zone=mv_link_zone:10m rate=10r/m;
+limit_req_zone $binary_remote_addr zone=mv_kml_zone:10m rate=6r/m;
+# nginx rejects limited requests with 503 by default, while every frontend recovery
+# path recognizes the standard 429 response.
+limit_req_status 429;
+
+# S-12: unmatched Host values are rejected by the HOST'S default_server catch-all
+# vhost (operator-managed, outside MarkerVault) — it closes such requests with 444
+# on both listeners. This file must NOT declare default_server, or nginx -t fails
+# with a duplicate default server.
+
+# HTTP redirect to HTTPS. Only Host values listed in server_name reach this block
+# (everything else hits the default catch-all vhost), so the $host redirect target
+# is always an allowlisted name. Add LAN IPs/hostnames here AND in
+# MARKERVAULT_TEMPORARY_LAN_HOSTS; remove the temporary LAN entries at public launch.
+server {
+    listen 80;
+    server_name markervault.lan;
+
+    return 301 https://$host$request_uri;
+}
+
+# HTTPS application server
+server {
+    listen 443 ssl;
+    server_name markervault.lan;
+
+    # Behind a trusted reverse proxy, uncomment and set the proxy's address:
+    #     set_real_ip_from <PROXY_IP_OR_CIDR>;
+    #     real_ip_header X-Forwarded-For;
+    #     real_ip_recursive on;
+    # Never use set_real_ip_from 0.0.0.0/0 — it trusts any peer to spoof client IP.
+
+    # S-02: small default body limit for JSON/API requests. The upload locations
+    # below raise it to the 20 MB application cap; Flask enforces its own
+    # MAX_CONTENT_LENGTH (20 MB) behind this in every case.
+    client_max_body_size 1m;
+
+    ssl_certificate /etc/ssl/certs/ssl-cert-snakeoil.pem;
+    ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;
+
+    # S-01: the document root is a dedicated public tree containing only index.html,
+    # frontend.js, style.css, and assets/. Source, database, media, and temp files
+    # live outside it (see markervault.service / markervault.env.example).
+    root /var/www/markervault/public;
+    index index.html;
+
+    # D-11: stable proxy headers once at server level. Every proxied location
+    # inherits these because none declares proxy_set_header of its own.
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    # Security headers (applied to all responses in this server block)
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-Frame-Options DENY always;
+    add_header Referrer-Policy strict-origin-when-cross-origin always;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+    # Content Security Policy. connect-src / img-src list the external services the map
+    # frontend calls: OpenStreetMap + Google tiles, Nominatim geocoding, OSRM routing.
+    # Uploaded photos are re-encoded to JPEG server-side, so 'self' img-src is safe.
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.tile.openstreetmap.org https://*.googleapis.com; connect-src 'self' https://nominatim.openstreetmap.org https://router.project-osrm.org; object-src 'none'; frame-ancestors 'none'; base-uri 'self'" always;
+
+    # Per-app log files: the shared /var/log/nginx/access.log and error.log mix
+    # every vhost on the host together. nginx creates these automatically.
+    access_log /var/log/nginx/markervault-access.log;
+    error_log  /var/log/nginx/markervault-error.log;
+
+    # Defense-in-depth denials. The public root contains none of these, but the rules
+    # stay so a deployment mistake (stray copy into public/) cannot expose them.
+    location ~ (^|/)\. {
+        return 404;
+    }
+
+    location ~ ^/(?:__pycache__|node_modules|temp|tests|tools|venv)(?:/|$) {
+        return 404;
+    }
+
+    location ~* \.(?:db|sqlite|sqlite3)(?:-(?:journal|shm|wal))?$ {
+        return 404;
+    }
+
+    location ~* \.(?:cfg|conf|env|ini|json|key|log|md|nginx|pem|pid|py|pyc|pyo|rst|service|sh|socket|sql|toml|txt|xml|ya?ml)$ {
+        return 404;
+    }
+
+    location ~* (?:~|\.(?:bak|old|orig|save|swp|tmp))$ {
+        return 404;
+    }
+
+    # Pin the PWA manifest's Content-Type. .webmanifest is the standard extension and
+    # already sidesteps the .json denial above, but an old/trimmed mime.types could
+    # otherwise serve it as octet-stream; the exact-match location beats the regex rules
+    # and inherits the server root, so the file still serves normally.
+    location = /site.webmanifest {
+        default_type application/manifest+json;
+    }
+
+    # Serve frontend: exact files plus the bare directory URL — no SPA fallback. The
+    # app has no client-side routes, so the old /index.html fallback only answered
+    # every probe with 200 and broke relative asset URLs on deep fake paths. $uri/
+    # keeps / itself resolving through the index directive; unknown paths get the
+    # branded 404.
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    # Index-less directories (assets/) would answer their bare URLs with nginx's
+    # plain 403 via the $uri/ branch; fold that into the same branded 404 so every
+    # probe looks identical.
+    error_page 403 =404 /404.html;
+    error_page 404 /404.html;
+    location = /404.html {
+        internal;
+    }
+
+    # Proxy API requests to Flask backend
+    location /notif_history {
+        proxy_pass http://127.0.0.1:5000/notif_history;
+    }
+
+    location /maps {
+        proxy_pass http://127.0.0.1:5000/maps;
+    }
+
+    location /spots {
+        proxy_pass http://127.0.0.1:5000/spots;
+    }
+
+    # Photo upload (POST) and replacement (PUT) are multipart image requests and get
+    # the full application body cap. Regex locations win over the /spots prefix.
+    location ~ ^/spots/[0-9]+/photos {
+        proxy_pass http://127.0.0.1:5000;
+
+        client_max_body_size 20m;
+    }
+
+    # Registered-user list for the map-sharing picker
+    location /users {
+        proxy_pass http://127.0.0.1:5000/users;
+    }
+
+    # Group list for the map-sharing picker (group management itself is under /admin/)
+    location /groups {
+        proxy_pass http://127.0.0.1:5000/groups;
+    }
+
+    # Auth endpoints
+    location /login {
+        proxy_pass http://127.0.0.1:5000/login;
+
+        # Allow short bursts, then throttle to the zone rate.
+        limit_req zone=mv_login_zone burst=10 nodelay;
+    }
+
+    location /auth/ {
+        proxy_pass http://127.0.0.1:5000/auth/;
+    }
+
+    # Enforced since Stage 10.1 (client single-flight/cross-tab serialization landed).
+    # burst=20 = the pause-B dry-run peak (burst-10 baseline + ~10 measured excess on
+    # rapid reload spam); each page load costs exactly one refresh, so 20 covers a
+    # 20-reload spam burst and 30r/m sustains a reload every 2 seconds indefinitely.
+    location = /auth/refresh {
+        proxy_pass http://127.0.0.1:5000/auth/refresh;
+
+        limit_req zone=mv_refresh_zone burst=20 nodelay;
+    }
+
+    # Self-service registration (public, throttled like /login to slow abuse)
+    location /register {
+        proxy_pass http://127.0.0.1:5000/register;
+
+        limit_req zone=mv_login_zone burst=10 nodelay;
+    }
+
+    # Backend-authoritative account-mode discovery plus the optional public email
+    # verification/recovery flows. Flask applies the established public request
+    # limiter to every POST; the endpoints are 404 while the mode is disabled.
+    location = /account-capabilities {
+        proxy_pass http://127.0.0.1:5000/account-capabilities;
+    }
+
+    location /email-verification/ {
+        proxy_pass http://127.0.0.1:5000/email-verification/;
+    }
+
+    location /password-recovery/ {
+        proxy_pass http://127.0.0.1:5000/password-recovery/;
+    }
+
+    # Admin user-management API (auth enforced in Flask via require_admin)
+    location /admin/ {
+        proxy_pass http://127.0.0.1:5000/admin/;
+    }
+
+    location /changepwd {
+        proxy_pass http://127.0.0.1:5000/changepwd;
+    }
+
+    location /profile {
+        proxy_pass http://127.0.0.1:5000/profile;
+    }
+
+    # Avatar upload is a multipart image request and gets the full application cap.
+    location = /profile/avatar {
+        proxy_pass http://127.0.0.1:5000/profile/avatar;
+
+        client_max_body_size 20m;
+    }
+
+    location /account {
+        proxy_pass http://127.0.0.1:5000/account;
+    }
+
+    # KML progress polling. Deliberately OUTSIDE the upload zone: its 1/s cadence is
+    # client-controlled and would trip the 6/min upload budget (observed in the
+    # pause-B dry-run baseline). The longer prefix wins over /import_kml below.
+    location /import_kml_status/ {
+        proxy_pass http://127.0.0.1:5000/import_kml_status/;
+    }
+
+    # KML file upload endpoint. proxy_request_buffering off streams the request body
+    # to Flask as it arrives, so authentication and size rejects happen before nginx
+    # buffers a full upload to disk. (Response buffering stays at its default; the
+    # route answers quickly with a job ID.)
+    location /import_kml {
+        proxy_pass http://127.0.0.1:5000/import_kml;
+
+        client_max_body_size 20m;
+        proxy_request_buffering off;
+        limit_req zone=mv_kml_zone burst=3 nodelay;
+    }
+
+    # Google Maps links coordinates scraping
+    location /parse-maps-link {
+        proxy_pass http://127.0.0.1:5000/parse-maps-link;
+
+        limit_req zone=mv_link_zone burst=5 nodelay;
+    }
+
+    # Uploaded photos/thumbs/avatars are not served directly. Flask validates each signed
+    # URL (and map access for photos/thumbs), then hands the byte transfer back to nginx
+    # via X-Accel-Redirect to the internal-only locations below.
+    location /photos/ {
+        proxy_pass http://127.0.0.1:5000/photos/;
+    }
+
+    location /thumbs/ {
+        proxy_pass http://127.0.0.1:5000/thumbs/;
+    }
+
+    location /avatars/ {
+        proxy_pass http://127.0.0.1:5000/avatars/;
+    }
+
+    # Internal-only file serving (reached ONLY via Flask's X-Accel-Redirect, never
+    # directly). Media lives in the runtime tree outside the public root (S-01).
+    location /internal_photos/ {
+        internal;
+        alias /var/lib/markervault/photos/;
+        autoindex off;
+        access_log off;
+
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-Frame-Options DENY always;
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+        add_header Content-Security-Policy "default-src 'none'" always;
+    }
+
+    location /internal_thumbs/ {
+        internal;
+        alias /var/lib/markervault/thumbs/;
+        autoindex off;
+        access_log off;
+
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-Frame-Options DENY always;
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+        add_header Content-Security-Policy "default-src 'none'" always;
+    }
+
+    location /internal_avatars/ {
+        internal;
+        alias /var/lib/markervault/avatars/;
+        autoindex off;
+        access_log off;
+
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-Frame-Options DENY always;
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+        add_header Content-Security-Policy "default-src 'none'" always;
+    }
+}

@@ -5929,7 +5929,7 @@ def import_kml_file(kml_file, map_id, job_id):
     ns = {"kml": "http://www.opengis.net/kml/2.2"}
 
     doc_el = root.find("kml:Document/kml:name", ns)
-    listing_name = _kml_text(doc_el, "General")
+    listing_name = _kml_text(doc_el, "GENERAL").upper()
 
     downloaded_urls = set()
     downloaded_bytes = 0
@@ -5960,9 +5960,9 @@ def import_kml_file(kml_file, map_id, job_id):
         while node is not None:
             if node.tag == folder_tag:
                 name_el = node.find("kml:name", ns)
-                return _kml_text(name_el, "Main")
+                return _kml_text(name_el, "MAIN").upper()
             node = parent_of.get(node)
-        return "Main"
+        return "MAIN"
 
     # One connection serves the whole job, but every commit stays small: a write
     # transaction spanning a photo download would starve the other worker's commits
